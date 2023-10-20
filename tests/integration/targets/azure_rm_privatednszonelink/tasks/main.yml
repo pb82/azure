@@ -1,11 +1,12 @@
+---
 - name: Create virtual network link name
   set_fact:
-    link_name: "link{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    link_name: link{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Create random domain name
   set_fact:
@@ -19,19 +20,19 @@
 
 - name: Create a virtual network
   azure_rm_virtualnetwork:
-    name: "vnet{{ rpfx }}"
+    name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
     address_prefixes_cidr:
-        - 10.1.0.0/16
-        - 172.100.0.0/16
+      - 10.1.0.0/16
+      - 172.100.0.0/16
     dns_servers:
-        - 127.0.0.1
-        - 127.0.0.2
+      - 127.0.0.1
+      - 127.0.0.2
 
 - name: Create a subnet
   azure_rm_subnet:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
     address_prefix_cidr: 10.1.0.0/24
 
@@ -40,7 +41,7 @@
     resource_group: "{{ resource_group }}"
     name: "{{ link_name }}"
     zone_name: "{{ domain_name }}.com"
-    virtual_network: "vnet{{ rpfx }}"
+    virtual_network: vnet{{ rpfx }}
     state: present
   register: results
 
@@ -53,7 +54,7 @@
     resource_group: "{{ resource_group }}"
     name: "{{ link_name }}"
     zone_name: "{{ domain_name }}.com"
-    virtual_network: "vnet{{ rpfx }}"
+    virtual_network: vnet{{ rpfx }}
     state: present
   register: results
 
@@ -67,7 +68,7 @@
     name: "{{ link_name }}"
     zone_name: "{{ domain_name }}.com"
     registration_enabled: true
-    virtual_network: "vnet{{ rpfx }}"
+    virtual_network: vnet{{ rpfx }}
     state: present
   register: results
 
@@ -115,7 +116,7 @@
 
 - name: Delete virtual network
   azure_rm_virtualnetwork:
-    name: "vnet{{ rpfx }}"
+    name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
     state: absent
 

@@ -1,7 +1,8 @@
+---
 - name: Fix resource prefix
   set_fact:
-    api_id: "myPolicy{{ resource_group | hash('md5') | truncate(23, True, '') }}"
-    service_name: "myService{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    api_id: myPolicy{{ resource_group | hash('md5') | truncate(23, True, '') }}
+    service_name: myService{{ resource_group | hash('md5') | truncate(22, True, '') }}
     display_name: test-api
     path: myapipath
 
@@ -23,14 +24,14 @@
     resource_group: "{{ resource_group }}"
     service_name: "{{ service_name }}"
     api_id: "{{ api_id }}"
-    description: "testDescription"
+    description: testDescription
     display_name: "{{ display_name }}"
-    service_url: 'http://testapi.example.net/api'
+    service_url: http://testapi.example.net/api
     path: "{{ path }}"
     protocols:
       - https
   register: newApi
-  
+
 - name: Assert that output has changed
   assert:
     that:
@@ -42,9 +43,9 @@
     resource_group: "{{ resource_group }}"
     service_name: "{{ service_name }}"
     api_id: "{{ api_id }}"
-    description: "testDescription"
+    description: testDescription
     display_name: "{{ display_name }}"
-    service_url: 'http://testapi.example.net/api'
+    service_url: http://testapi.example.net/api
     path: "{{ path }}"
     protocols:
       - https
@@ -61,9 +62,9 @@
     resource_group: "{{ resource_group }}"
     service_name: "{{ service_name }}"
     api_id: "{{ api_id }}"
-    description: "testDescription"
+    description: testDescription
     display_name: "{{ display_name }}"
-    service_url: 'http://testapi.example.net/api'
+    service_url: http://testapi.example.net/api
     path: "{{ path }}"
     protocols:
       - https

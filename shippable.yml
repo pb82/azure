@@ -1,3 +1,4 @@
+---
 language: python
 
 env:
@@ -24,7 +25,7 @@ matrix:
 branches:
   except:
     - "*-patch-*"
-    - "revert-*-*"
+    - revert-*-*
 
 build:
   ci:

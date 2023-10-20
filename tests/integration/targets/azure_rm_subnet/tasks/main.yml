@@ -1,3 +1,4 @@
+---
 - name: Create virtual network
   azure_rm_virtualnetwork:
     name: My_Virtual_Network
@@ -31,9 +32,9 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0/24"
+    address_prefix_cidr: 10.1.0/24
   register: output
-  ignore_errors: yes
+  ignore_errors: true
 
 - assert:
     that: output.failed
@@ -43,7 +44,7 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/24"
+    address_prefix_cidr: 10.1.0.0/24
   register: output
 
 - assert:
@@ -73,7 +74,7 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     security_group: secgroupfoo
     service_endpoints:
       - service: Microsoft.Sql
@@ -86,7 +87,7 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     service_endpoints:
       - service: Microsoft.Sql
         locations:
@@ -102,7 +103,7 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     service_endpoints: []
   register: output
 
@@ -120,7 +121,7 @@
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     route_table: "{{ route_table.id }}"
     security_group:
       name: secgroupfoo
@@ -128,16 +129,16 @@
   register: output
 
 - assert:
-    that: 
-    - output.changed
-    - output.state.network_security_group.id == nsg.state.id
+    that:
+      - output.changed
+      - output.state.network_security_group.id == nsg.state.id
 
 - name: Update the subnet (idempotent)
   azure_rm_subnet:
     name: foobar
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     route_table: "{{ route_table.id }}"
     security_group: "{{ nsg.state.id }}"
   register: output
@@ -151,8 +152,8 @@
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
     address_prefixes_cidr:
-      - "172.100.0.0/16"
-      - "fdda:e69b:1587:495e::/64"
+      - 172.100.0.0/16
+      - fdda:e69b:1587:495e::/64
   register: output
 
 - assert:
@@ -167,8 +168,8 @@
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
     address_prefixes_cidr:
-      - "172.100.0.0/16"
-      - "fdda:e69b:1587:495e::/64"
+      - 172.100.0.0/16
+      - fdda:e69b:1587:495e::/64
   register: output
 
 - assert:
@@ -180,8 +181,8 @@
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
     address_prefixes_cidr:
-      - "172.100.0.0/24"
-      - "fdda:e69b:1587:495e::/64"
+      - 172.100.0.0/24
+      - fdda:e69b:1587:495e::/64
     security_group: "{{ nsg.state.id }}"
   register: output
 
@@ -219,8 +220,8 @@
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
     delegations:
-      - name: 'mydeleg'
-        serviceName: 'Microsoft.ContainerInstance/containerGroups'
+      - name: mydeleg
+        serviceName: Microsoft.ContainerInstance/containerGroups
   register: output
 
 - assert:
@@ -232,8 +233,8 @@
     virtual_network_name: My_Virtual_Network
     resource_group: "{{ resource_group }}"
     delegations:
-      - name: 'mydeleg'
-        serviceName: 'Microsoft.ContainerInstance/containerGroups'
+      - name: mydeleg
+        serviceName: Microsoft.ContainerInstance/containerGroups
   register: output
 
 - assert:

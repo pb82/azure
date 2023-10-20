@@ -1,3 +1,4 @@
+---
 - set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(8, True, '') }}"
 
@@ -8,11 +9,11 @@
 
 - name: Create a kubernet service with minimal parameters
   azure_rm_aks:
-    name: "min{{ rpfx }}"
+    name: min{{ rpfx }}
     location: eastus
     resource_group: "{{ resource_group }}"
     kubernetes_version: "{{ versions.azure_aks_versions[0] }}"
-    dns_prefix: "aks{{ rpfx }}"
+    dns_prefix: aks{{ rpfx }}
     enable_rbac: true
     aad_profile:
       managed: true
@@ -23,10 +24,10 @@
         mode: System
     api_server_access_profile:
       authorized_ip_ranges:
-        - "192.0.2.0"
-        - "198.51.100.0"
-        - "203.0.113.0"
-      enable_private_cluster: no
+        - 192.0.2.0
+        - 198.51.100.0
+        - 203.0.113.0
+      enable_private_cluster: false
     network_profile:
       load_balancer_sku: standard
       outbound_type: loadBalancer
@@ -35,37 +36,37 @@
 - name: Get cluster's node agent pool info
   azure_rm_aksagentpool_info:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
   register: output
 
 - name: Assert the cluster with one agent pool
   assert:
     that:
-      - "output.aks_agent_pools | length == 1"
+      - output.aks_agent_pools | length == 1
 
 - name: Get aks agent pool support version
   azure_rm_aksagentpoolversion_info:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
   register: agentpool_version
 
 - name: Assert the orchestrator version is not None
   assert:
     that:
-      - "agentpool_version.azure_orchestrator_version | length >= 1"
+      - agentpool_version.azure_orchestrator_version | length >= 1
 
 - name: Add agent pool
   azure_rm_aksagentpool:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
     name: default03
     count: 1
     vm_size: Standard_B2s
     type_properties_type: VirtualMachineScaleSets
     mode: System
-    node_labels: {"release":"stable"}
+    node_labels: { release: stable }
     max_pods: 42
-    enable_auto_scaling: True
+    enable_auto_scaling: true
     min_count: 1
     max_count: 10
     orchestrator_version: "{{ agentpool_version.azure_orchestrator_version[0] }}"
@@ -82,15 +83,15 @@
 - name: Add agent pool (Idempotent test)
   azure_rm_aksagentpool:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
     name: default03
     count: 1
     vm_size: Standard_B2s
     type_properties_type: VirtualMachineScaleSets
     mode: System
-    node_labels: {"release":"stable"}
+    node_labels: { release: stable }
     max_pods: 42
-    enable_auto_scaling: True
+    enable_auto_scaling: true
     min_count: 1
     max_count: 10
     orchestrator_version: "{{ agentpool_version.azure_orchestrator_version[0] }}"
@@ -107,26 +108,26 @@
 - name: Get cluster's node agent pool info
   azure_rm_aksagentpool_info:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
   register: output
 
 - name: Assert node agent pool
   assert:
     that:
-      - "output.aks_agent_pools | length == 2"
+      - output.aks_agent_pools | length == 2
 
 - name: Upgrade node agent pool
   azure_rm_aksagentpool:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
     name: default03
     count: 1
     vm_size: Standard_B2s
     type_properties_type: VirtualMachineScaleSets
     mode: System
-    node_labels: {"release":"stable"}
+    node_labels: { release: stable }
     max_pods: 42
-    enable_auto_scaling: True
+    enable_auto_scaling: true
     min_count: 2
     max_count: 20
     orchestrator_version: "{{ agentpool_version.azure_orchestrator_version[0] }}"
@@ -143,7 +144,7 @@
 - name: Get cluster's node agent pool info
   azure_rm_aksagentpool_info:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
     name: default03
   register: output
 
@@ -160,7 +161,7 @@
 - name: Delete node agent pool
   azure_rm_aksagentpool:
     resource_group: "{{ resource_group }}"
-    cluster_name: "min{{ rpfx }}"
+    cluster_name: min{{ rpfx }}
     name: default03
     state: absent
   register: output

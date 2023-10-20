@@ -1,7 +1,8 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Create instance of MySQL Server -- check mode
   azure_rm_mysqlserver:
@@ -17,10 +18,10 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -41,7 +42,7 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -65,7 +66,7 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -89,7 +90,7 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -115,7 +116,7 @@
   azure_rm_mysqlserver:
     resource_group: "{{ resource_group }}"
     name: mysqlsrv{{ rpfx }}
-    restarted: True
+    restarted: true
   register: output
 - name: Assert the state has not changed
   assert:
@@ -136,7 +137,7 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
     tags:
@@ -156,7 +157,7 @@
       geo_redundant_backup: Disabled
       storage_autogrow: Disabled
     version: 5.7
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
     tags:
@@ -166,7 +167,7 @@
   azure_rm_mysqlserver_info:
     resource_group: "{{ resource_group }}"
     name: mysqlsrv{{ rpfx }}second
-  register: output 
+  register: output
 
 - name: Assert that facts are returned
   assert:
@@ -219,7 +220,7 @@
     resource_group: "{{ resource_group }}"
     server_name: mysqlsrv{{ rpfx }}
     name: testdatabase
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -261,7 +262,7 @@
     name: testdatabase
     collation: utf8_general_ci
     charset: utf8
-  ignore_errors: yes
+  ignore_errors: true
   register: output
 - name: Assert that nothing has changed
   assert:
@@ -275,7 +276,7 @@
     name: testdatabase
     collation: utf8_general_ci
     charset: utf8
-    force_update: yes
+    force_update: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -294,7 +295,7 @@
     resource_group: "{{ resource_group }}"
     server_name: mysqlsrv{{ rpfx }}
     name: testdatabase
-  register: output 
+  register: output
 
 - name: Assert that facts are returned
   assert:
@@ -329,7 +330,7 @@
     server_name: mysqlsrv{{ rpfx }}
     name: testdatabase
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -370,7 +371,7 @@
     name: firewallrule{{ rpfx }}
     start_ip_address: 172.28.10.136
     end_ip_address: 172.28.10.138
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -409,7 +410,7 @@
     server_name: mysqlsrv{{ rpfx }}
     name: firewallrule{{ rpfx }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -444,7 +445,7 @@
       - output.rules[0].name != None
       - output.rules[0].start_ip_address != None
       - output.rules[0].end_ip_address != None
-      - "output.rules | length == 1"
+      - output.rules | length == 1
 
 - name: Gather facts MySQL Firewall Rule
   azure_rm_mysqlfirewallrule_info:
@@ -464,7 +465,7 @@
       - output.rules[1].name != None
       - output.rules[1].start_ip_address != None
       - output.rules[1].end_ip_address != None
-      - "output.rules | length == 2"
+      - output.rules | length == 2
 
 - name: Delete instance of Firewall Rule
   azure_rm_mysqlfirewallrule:
@@ -507,7 +508,7 @@
   assert:
     that:
       - output.changed == False
-      - "output.rules | length == 0"
+      - output.rules | length == 0
 
 #
 # configuration
@@ -518,7 +519,7 @@
     server_name: mysqlsrv{{ rpfx }}
     name: event_scheduler
     value: "ON"
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert that change was registered
   assert:
@@ -637,7 +638,7 @@
     resource_group: "{{ resource_group }}"
     name: mysqlsrv{{ rpfx }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:

@@ -1,10 +1,11 @@
+---
 # TODO: Until we have a module to create/delete images this is the best tests I can do
 - name: Assert error thrown with invalid image dict
   azure_rm_virtualmachine:
     resource_group: "{{ resource_group }}"
     name: "{{ vm_name }}"
     image:
-      offer: 0001-com-ubuntu-server-focal
+      offer: "0001-com-ubuntu-server-focal"
   register: fail_invalid_image_dict
   failed_when: 'fail_invalid_image_dict.msg != "parameter error: expecting image to contain [publisher, offer, sku, version], [name, resource_group] or [id]"'
 

@@ -1,3 +1,4 @@
+---
 - set_fact:
     cluster_name: "{{ resource_group | hash('md5') | truncate(8, True, '') }}"
 
@@ -12,7 +13,7 @@
   register: output
 
 - assert:
-      that: output['clusters'] | length == 0
+    that: output['clusters'] | length == 0
 
 - name: Get specific cluster information for a specific cluster
   azure_rm_openshiftmanagedcluster_info:
@@ -21,14 +22,14 @@
   register: output
 
 - assert:
-      that: output['clusters'].keys() | length == 0
+    that: output['clusters'].keys() | length == 0
 
 - name: Get all clusters
   azure_rm_openshiftmanagedcluster_info:
   register: output
 
 - assert:
-      that: output['clusters']['value'] | length == 0
+    that: output['clusters']['value'] | length == 0
 
 - name: Create virtual network
   azure_rm_virtualnetwork:
@@ -58,7 +59,7 @@
   azure_rm_openshiftmanagedcluster:
     resource_group: "{{ resource_group }}"
     name: "{{ cluster_name }}"
-    location: "eastus"
+    location: eastus
     cluster_profile:
       cluster_resource_group_id: "{{ rg_output.resourcegroups[0].id }}"
       domain: "{{ cluster_name }}"
@@ -66,21 +67,20 @@
       client_id: "{{ azure_client_id }}"
       client_secret: "{{ azure_secret }}"
     network_profile:
-      pod_cidr: "10.128.0.0/14"
-      service_cidr: "172.30.0.0/16"
+      pod_cidr: 10.128.0.0/14
+      service_cidr: 172.30.0.0/16
     worker_profiles:
-      - vm_size: "Standard_D4s_v3"
+      - vm_size: Standard_D4s_v3
         subnet_id: "{{ worker_sub_output.state.id }}"
         disk_size: 128
         count: 3
     master_profile:
-      vm_size: "Standard_D8s_v3"
+      vm_size: Standard_D8s_v3
       subnet_id: "{{ master_sub_output.state.id }}"
   register: output
 
 - assert:
-      that: output.changed
-
+    that: output.changed
 
 - name: Get available clusters for a specific resource_group
   azure_rm_openshiftmanagedcluster_info:
@@ -88,7 +88,7 @@
   register: output
 
 - assert:
-      that: output['clusters'] | length == 1
+    that: output['clusters'] | length == 1
 
 - name: Get specific cluster information for a specific cluster
   azure_rm_openshiftmanagedcluster_info:
@@ -97,22 +97,22 @@
   register: output
 
 - assert:
-      that: output['clusters']['name'] == "{{ cluster_name }}"
+    that: output['clusters']['name'] == "{{ cluster_name }}"
 
 - name: Get all clusters
   azure_rm_openshiftmanagedcluster_info:
   register: output
 
 - assert:
-      that: output['clusters'] | length >= 1
+    that: output['clusters'] | length >= 1
 
 - name: Delete openshift cluster
   azure_rm_openshiftmanagedcluster:
     resource_group: "{{ resource_group }}"
     name: "{{ cluster_name }}"
-    location: "eastus"
+    location: eastus
     state: absent
   register: output
 
 - assert:
-      that: output.changed
+    that: output.changed

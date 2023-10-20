@@ -1,29 +1,30 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(10, True, '') }}"
-  run_once: yes
+  run_once: true
 
 - name: Create automation account
   azure_rm_automationaccount:
-    name: "account-{{ rpfx }}"
+    name: account-{{ rpfx }}
     resource_group: "{{ resource_group }}"
 
 - name: create automation runbook (check mode)
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}"
-    runbook_type: "Script"
-    description: "Fred test"
-  check_mode: yes
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}
+    runbook_type: Script
+    description: Fred test
+  check_mode: true
 
 - name: create automation runbook with default parameters
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}"
-    runbook_type: "Script"
-    description: "Fred test"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}
+    runbook_type: Script
+    description: Fred test
   register: output
 
 - name: Assert the automation runbook is well created
@@ -34,10 +35,10 @@
 - name: create automation runbook with default parameters (idempotent)
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}"
-    runbook_type: "Script"
-    description: "Fred test"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}
+    runbook_type: Script
+    description: Fred test
   register: output
 
 - name: Assert the automation runbook is well created
@@ -45,17 +46,17 @@
     that:
       - not output.changed
 
-- name: Create automation runbook with more paramters 
+- name: Create automation runbook with more paramters
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}-secondary"
-    runbook_type: "Script"
-    description: "test"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}-secondary
+    runbook_type: Script
+    description: test
     log_activity_trace: 2
-    log_progress: False
-    log_verbose: True
-    tags: 
+    log_progress: false
+    log_verbose: true
+    tags:
       key1: value1
   register: output
 
@@ -64,17 +65,17 @@
     that:
       - output.changed
 
-- name: Update automation runbook with more paramters 
+- name: Update automation runbook with more paramters
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}-secondary"
-    runbook_type: "Script"
-    description: "update"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}-secondary
+    runbook_type: Script
+    description: update
     log_activity_trace: 3
-    log_progress: True
-    log_verbose: False
-    tags: 
+    log_progress: true
+    log_verbose: false
+    tags:
       key2: value2
   register: output
 
@@ -83,12 +84,12 @@
     that:
       - output.changed
 
-- name: Publish automation runbook 
+- name: Publish automation runbook
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}-secondary"
-    publish: True
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}-secondary
+    publish: true
   register: output
 
 - name: Assert the automation runbook is well published
@@ -99,8 +100,8 @@
 - name: Get automation runbook
   azure_rm_automationrunbook_info:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}-secondary"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}-secondary
   register: output
 
 - name: Assert the automation runbook is well created
@@ -116,7 +117,7 @@
 - name: Get all automation runbook
   azure_rm_automationrunbook_info:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
+    automation_account_name: account-{{ rpfx }}
   register: output
 
 - name: Assert the automation runbook is well created
@@ -127,13 +128,13 @@
 - name: delete automation runbook
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}
     state: absent
 
 - name: delete automation runbook
   azure_rm_automationrunbook:
     resource_group: "{{ resource_group }}"
-    automation_account_name: "account-{{ rpfx }}"
-    name: "runbook-{{ rpfx }}-secondary"
+    automation_account_name: account-{{ rpfx }}
+    name: runbook-{{ rpfx }}-secondary
     state: absent

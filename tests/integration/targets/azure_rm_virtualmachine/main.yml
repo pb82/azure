@@ -1,6 +1,7 @@
+---
 - name: Run Azure VM tests in parallel
   hosts: all
-  gather_facts: no
+  gather_facts: false
   strategy: free
   tasks:
     - name: Include tasks based on inventory hostname

@@ -1,12 +1,13 @@
+---
 - name: set facts
   set_fact:
-     subscription_id: "{{ azure_subscription_id }}"
-     subscription_sec_id: "{{ azure_subscription_sec_id }}"
-     managed_by_tenant_id: "{{ azure_managed_by_tenant_id }}"
-     principal_id: "{{ azure_principal_id }}"
-     role_definition_id: "{{ azure_role_definition_id }}"
-     reg_def_name: test_name
-  run_once: yes
+    subscription_id: "{{ azure_subscription_id }}"
+    subscription_sec_id: "{{ azure_subscription_sec_id }}"
+    managed_by_tenant_id: "{{ azure_managed_by_tenant_id }}"
+    principal_id: "{{ azure_principal_id }}"
+    role_definition_id: "{{ azure_role_definition_id }}"
+    reg_def_name: test_name
+  run_once: true
 
 - name: Create a RegistrationDefinition -- check mode
   azure_rm_registrationdefinition:
@@ -17,7 +18,7 @@
           role_definition_id: "{{ role_definition_id }}"
       managed_by_tenant_id: "{{ managed_by_tenant_id }}"
       registration_definition_name: "{{ reg_def_name }}"
-  check_mode: yes
+  check_mode: true
   register: output
 
 - name: Assert creating registration definition check mode
@@ -94,7 +95,7 @@
 
 - name: Get the Registration Definition info
   azure_rm_registrationdefinition_info:
-    registration_definition_id:  "{{ output1.state.name }}"
+    registration_definition_id: "{{ output1.state.name }}"
   register: output
 
 - name: Assert the registration definition info
@@ -109,7 +110,7 @@
 
 - name: Get All Registration Definition info in the subscription
   azure_rm_registrationdefinition_info:
-    scope:  "{{ subscription_id }}"
+    scope: "{{ subscription_id }}"
   register: output
 
 - name: Assert all the registration definition info

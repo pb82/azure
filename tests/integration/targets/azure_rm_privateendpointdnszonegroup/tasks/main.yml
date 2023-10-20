@@ -1,43 +1,44 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
   run_once: true
 
-- name: "Create virtual network"
+- name: Create virtual network
   azure_rm_virtualnetwork:
-    name: "vnet-{{ rpfx }}"
+    name: vnet-{{ rpfx }}
     address_prefixes_cidr:
-      - "10.1.0.0/16"
+      - 10.1.0.0/16
     resource_group: "{{ resource_group }}"
 
-- name: "Create the subnet"
+- name: Create the subnet
   azure_rm_subnet:
-    name: "subnet-{{ rpfx }}"
-    virtual_network_name: "vnet-{{ rpfx }}"
+    name: subnet-{{ rpfx }}
+    virtual_network_name: vnet-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     private_endpoint_network_policies: Disabled
     private_link_service_network_policies: Disabled
   register: subnet_output
 
-- name: "Create instance of PostgreSQL Server"
+- name: Create instance of PostgreSQL Server
   azure_rm_postgresqlserver:
     resource_group: "{{ resource_group }}"
-    name: "postgresqlsrv-{{ rpfx }}"
+    name: postgresqlsrv-{{ rpfx }}
     sku:
-      name: "GP_Gen5_2"
-      tier: "GeneralPurpose"
-    location: "eastus"
+      name: GP_Gen5_2
+      tier: GeneralPurpose
+    location: eastus
     storage_mb: 51200
     enforce_ssl: true
-    admin_username: "zimxyz"
-    admin_password: "Password123!"
+    admin_username: zimxyz
+    admin_password: Password123!
   register: post_output
 
 - name: Create zone group for non-existant private endpoint
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "does-not-exist-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: does-not-exist-{{ rpfx }}
     resource_group: "{{ resource_group }}"
   ignore_errors: true
   register: output
@@ -51,28 +52,28 @@
     name: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     private_link_service_connections:
-      - name: "postgres-link"
+      - name: postgres-link
         private_link_service_id: "{{ post_output.id }}"
         group_ids:
-          - "postgresqlServer"
+          - postgresqlServer
     subnet:
       id: "{{ subnet_output.state.id }}"
 
 - name: Create private DNS zone for postgres
   azure_rm_privatednszone:
-    name: "privatelink.postgres.database.azure.com"
+    name: privatelink.postgres.database.azure.com
     resource_group: "{{ resource_group }}"
 
 - name: Create virtual network link
   azure_rm_privatednszonelink:
-    name: "private-link-{{ rpfx }}"
+    name: private-link-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    zone_name: "privatelink.postgres.database.azure.com"
-    virtual_network: "vnet-{{ rpfx }}"
+    zone_name: privatelink.postgres.database.azure.com
+    virtual_network: vnet-{{ rpfx }}
 
 - name: Get zone groups for private endpoint
   azure_rm_privateendpointdnszonegroup_info:
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert results match expectations
@@ -83,12 +84,12 @@
 
 - name: Create zone group for private endpoint - check mode
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     private_dns_zone_configs:
-      - name: "default"
-        private_dns_zone: "privatelink.postgres.database.azure.com"
+      - name: default
+        private_dns_zone: privatelink.postgres.database.azure.com
   register: output
   check_mode: true
 - name: Assert results match expectations
@@ -98,12 +99,12 @@
 
 - name: Create zone group for private endpoint
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     private_dns_zone_configs:
-      - name: "default"
-        private_dns_zone: "privatelink.postgres.database.azure.com"
+      - name: default
+        private_dns_zone: privatelink.postgres.database.azure.com
   register: output
 - name: Assert results match expectations
   assert:
@@ -126,12 +127,12 @@
 
 - name: Create zone group for private endpoint - idempotent
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     private_dns_zone_configs:
-      - name: "default"
-        private_dns_zone: "privatelink.postgres.database.azure.com"
+      - name: default
+        private_dns_zone: privatelink.postgres.database.azure.com
   register: output
 - name: Assert results match expectations
   assert:
@@ -140,8 +141,8 @@
 
 - name: Get specific zone group for private endpoint
   azure_rm_privateendpointdnszonegroup_info:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert results match expectations
@@ -166,7 +167,7 @@
 
 - name: Get all zone groups for private endpoint
   azure_rm_privateendpointdnszonegroup_info:
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert results match expectations
@@ -191,12 +192,12 @@
 
 - name: Update zone group for private endpoint
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     private_dns_zone_configs:
-      - name: "default-updated"
-        private_dns_zone: "privatelink.postgres.database.azure.com"
+      - name: default-updated
+        private_dns_zone: privatelink.postgres.database.azure.com
   register: output
 - name: Assert results match expectations
   assert:
@@ -219,10 +220,10 @@
 
 - name: Delete zone group for private endpoint - check mode
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
   check_mode: true
 - name: Assert results match expectations
@@ -232,10 +233,10 @@
 
 - name: Delete zone group for private endpoint
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: Assert results match expectations
   assert:
@@ -244,10 +245,10 @@
 
 - name: Delete non-existant zone group for private endpoint
   azure_rm_privateendpointdnszonegroup:
-    name: "zone-group-{{ rpfx }}"
-    private_endpoint: "privateendpoint-{{ rpfx }}"
+    name: zone-group-{{ rpfx }}
+    private_endpoint: privateendpoint-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: Assert results match expectations
   assert:

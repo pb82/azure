@@ -1,3 +1,4 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
@@ -20,8 +21,8 @@
     resource_group: "{{ resource_group }}"
     address_prefix_cidr: 10.1.0.0/24
     delegations:
-      - name: 'mydeleg'
-        serviceName: 'Microsoft.Web/serverFarms'
+      - name: mydeleg
+        serviceName: Microsoft.Web/serverFarms
   register: subnet_output
 - name: Create a web app
   azure_rm_webapp:
@@ -33,7 +34,7 @@
       is_linux: false
       sku: S1
 
-- name: "Create webapp vnetconnection - check mode"
+- name: Create webapp vnetconnection - check mode
   azure_rm_webappvnetconnection:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -45,7 +46,7 @@
   assert:
     that: output.changed
 
-- name: "Check webapp vnetconnection facts 1"
+- name: Check webapp vnetconnection facts 1
   azure_rm_webappvnetconnection_info:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -56,7 +57,7 @@
       - not output.changed
       - output.connection | length == 0
 
-- name: "Create webapp vnetconnection"
+- name: Create webapp vnetconnection
   azure_rm_webappvnetconnection:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -71,7 +72,7 @@
       - output.connection.subnet_name == 'subnet{{ rpfx }}'
       - output.connection.vnet_resource_group == '{{ resource_group }}'
 
-- name: "Check webapp vnetconnection facts 2"
+- name: Check webapp vnetconnection facts 2
   azure_rm_webappvnetconnection_info:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -84,7 +85,7 @@
       - output.connection.subnet_name == 'subnet{{ rpfx }}'
       - output.connection.vnet_resource_group == '{{ resource_group }}'
 
-- name: "Create webapp vnetconnection - idempotent"
+- name: Create webapp vnetconnection - idempotent
   azure_rm_webappvnetconnection:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -95,11 +96,11 @@
   assert:
     that: not output.changed
 
-- name: "Delete webapp vnetconnection"
+- name: Delete webapp vnetconnection
   azure_rm_webappvnetconnection:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: Assert the connection is deleted
   assert:
@@ -107,7 +108,7 @@
       - output.changed
       - output.connection | length == 0
 
-- name: "Check webapp vnetconnection facts 3"
+- name: Check webapp vnetconnection facts 3
   azure_rm_webappvnetconnection_info:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
@@ -118,11 +119,11 @@
       - not output.changed
       - output.connection | length == 0
 
-- name: "Delete webapp vnetconnection - idempotent"
+- name: Delete webapp vnetconnection - idempotent
   azure_rm_webappvnetconnection:
     name: webapp{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: Assert the resource is not changed
   assert:

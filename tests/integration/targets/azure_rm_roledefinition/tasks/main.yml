@@ -1,26 +1,27 @@
+---
 - name: Fix resource prefix
   set_fact:
     role_name: "{{ (resource_group | replace('-','x'))[-8:] }}{{ 1000 | random }}testrole"
     subscription_id: "{{azure_subscription_id}}"
     principal_id: "{{azure_client_id}}"
-  run_once: yes
+  run_once: true
 
 - name: Create a role definition (Check Mode)
   azure_rm_roledefinition:
     name: "{{ role_name }}"
-    scope: "/subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}"
+    scope: /subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}
     permissions:
       - actions:
-          - "Microsoft.Compute/virtualMachines/read"
+          - Microsoft.Compute/virtualMachines/read
         not_actions:
-          - "Microsoft.Compute/virtualMachines/write"
+          - Microsoft.Compute/virtualMachines/write
         data_actions:
-          - "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+          - Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read
         not_data_actions:
-          - "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+          - Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write
     assignable_scopes:
-        - "/subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}"
-  check_mode: yes
+      - /subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}
+  check_mode: true
   register: output
 
 - name: Assert creating role definition check mode
@@ -31,25 +32,24 @@
 - name: Create a role definition
   azure_rm_roledefinition:
     name: "{{ role_name }}"
-    scope: "/subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}"
+    scope: /subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}
     permissions:
       - actions:
-          - "Microsoft.Compute/virtualMachines/read"
+          - Microsoft.Compute/virtualMachines/read
         not_actions:
-          - "Microsoft.Compute/virtualMachines/write"
+          - Microsoft.Compute/virtualMachines/write
         data_actions:
-          - "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+          - Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read
         not_data_actions:
-          - "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+          - Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write
     assignable_scopes:
-        - "/subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}"
+      - /subscriptions/{{ subscription_id }}/resourceGroups/{{ resource_group }}
   register: output
 
 - name: Assert creating role definition
   assert:
     that:
       - output.changed
-
 
 ## because of the bug of azure service , the following tasks will cause failures randomly
 #

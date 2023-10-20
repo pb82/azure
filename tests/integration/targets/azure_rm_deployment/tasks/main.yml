@@ -1,12 +1,13 @@
+---
 - name: Create random dns label
   set_fact:
-    dns_label: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
+    dns_label: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
 
 - name: Error Create Azure Deploy
   azure_rm_deployment:
     resource_group: "{{ resource_group }}"
-    location: "eastus"
-    template_link: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/d01a5c06f4f1bc03a049ca17bbbd6e06d62657b3/101-vm-simple-linux/azuredeploy.json'
+    location: eastus
+    template_link: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/d01a5c06f4f1bc03a049ca17bbbd6e06d62657b3/101-vm-simple-linux/azuredeploy.json
     deployment_name: "{{ dns_label }}"
     parameters:
       adminUsername:
@@ -16,15 +17,15 @@
       dnsLabelPrefix:
         value: "{{ dns_label }}"
       ubuntuOSVersion:
-        value: "Never-LTS"
+        value: Never-LTS
   register: output
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Create Azure Deploy
   azure_rm_deployment:
     resource_group: "{{ resource_group }}"
-    location: "eastus"
-    template_link: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/d01a5c06f4f1bc03a049ca17bbbd6e06d62657b3/101-vm-simple-linux/azuredeploy.json'
+    location: eastus
+    template_link: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/d01a5c06f4f1bc03a049ca17bbbd6e06d62657b3/101-vm-simple-linux/azuredeploy.json
     deployment_name: "{{ dns_label }}"
     parameters:
       adminUsername:
@@ -34,7 +35,7 @@
       dnsLabelPrefix:
         value: "{{ dns_label }}"
       ubuntuOSVersion:
-        value: "16.04.0-LTS"
+        value: 16.04.0-LTS
   register: output
 
 - name: Add new instance to host group

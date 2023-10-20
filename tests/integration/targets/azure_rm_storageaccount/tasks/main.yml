@@ -1,12 +1,13 @@
+---
 - name: Set Storage Account Names
   set_fact:
-    storage_account_name_default: "sa{{ resource_group | hash('md5') | truncate(20, True, '') }}"
-    storage_account_name_explicit: "sa{{ resource_group | hash('sha1') | truncate(20, True, '') }}"
+    storage_account_name_default: sa{{ resource_group | hash('md5') | truncate(20, True, '') }}
+    storage_account_name_explicit: sa{{ resource_group | hash('sha1') | truncate(20, True, '') }}
 
 - name: Test invalid account name
   azure_rm_storageaccount:
     resource_group: "{{ resource_group }}"
-    name: "invalid_char$"
+    name: invalid_char$
     account_type: Standard_LRS
   register: output
   ignore_errors: true
@@ -106,8 +107,8 @@
     kind: StorageV2
     static_website:
       enabled: true
-      index_document: "index.html"
-      error_document404_path: "error.html"
+      index_document: index.html
+      error_document404_path: error.html
   register: output
 - name: Assert output
   assert:
@@ -126,8 +127,8 @@
     kind: StorageV2
     static_website:
       enabled: true
-      index_document: "index.html"
-      error_document404_path: "error.html"
+      index_document: index.html
+      error_document404_path: error.html
   register: output
 - name: Assert not changed
   assert:
@@ -154,7 +155,7 @@
   register: output
 - assert:
     that:
-      - "output.storageaccounts | length == 1"
+      - output.storageaccounts | length == 1
       - output.storageaccounts[0].is_hns_enabled == true
 
 - name: Create storage account with static website enabled
@@ -165,7 +166,7 @@
     kind: StorageV2
     static_website:
       enabled: true
-      index_document: "abc.htm"
+      index_document: abc.htm
   register: output
 - name: Assert output
   assert:
@@ -184,7 +185,7 @@
     kind: StorageV2
     static_website:
       enabled: true
-      index_document: "abc.htm"
+      index_document: abc.htm
   register: output
 - name: Assert not changed
   assert:
@@ -226,7 +227,7 @@
   azure_rm_storageaccount:
     access_tier: Hot
     account_type: Premium_LRS
-    allow_blob_public_access: False
+    allow_blob_public_access: false
     append_tags: false
     blob_cors:
       - allowed_origins:
@@ -241,16 +242,16 @@
         exposed_headers:
           - x-ms-meta-*
         max_age_in_seconds: 200
-    https_only: False
+    https_only: false
     kind: StorageV2
     location: eastus
-    minimum_tls_version: 'TLS1_2'
+    minimum_tls_version: TLS1_2
     name: "{{ storage_account_name_explicit }}"
     network_acls:
       bypass: AzureServices
       default_action: Deny
       ip_rules:
-        - value: '9.9.9.9'
+        - value: 9.9.9.9
           action: Allow
     resource_group: "{{ resource_group }}"
     tags:
@@ -274,7 +275,7 @@
   azure_rm_storageaccount:
     access_tier: Hot
     account_type: Premium_LRS
-    allow_blob_public_access: False
+    allow_blob_public_access: false
     append_tags: false
     blob_cors:
       - allowed_origins:
@@ -289,16 +290,16 @@
         exposed_headers:
           - x-ms-meta-*
         max_age_in_seconds: 200
-    https_only: False
+    https_only: false
     kind: StorageV2
     location: eastus
-    minimum_tls_version: 'TLS1_2'
+    minimum_tls_version: TLS1_2
     name: "{{ storage_account_name_explicit }}"
     network_acls:
       bypass: AzureServices
       default_action: Deny
       ip_rules:
-        - value: '9.9.9.9'
+        - value: 9.9.9.9
           action: Allow
     resource_group: "{{ resource_group }}"
     tags:
@@ -358,7 +359,7 @@
   azure_rm_storageaccount:
     resource_group: "{{ resource_group }}"
     name: "{{ storage_account_name_default }}"
-    allow_blob_public_access: False
+    allow_blob_public_access: false
     append_tags: false
     blob_cors:
       - allowed_origins:
@@ -373,14 +374,14 @@
         exposed_headers:
           - x-ms-meta-*
         max_age_in_seconds: 200
-    https_only: False
+    https_only: false
     kind: StorageV2
-    minimum_tls_version: 'TLS1_1'
+    minimum_tls_version: TLS1_1
     network_acls:
       bypass: AzureServices
       default_action: Deny
       ip_rules:
-        - value: '9.9.9.9'
+        - value: 9.9.9.9
           action: Allow
     tags:
       test: test
@@ -435,9 +436,9 @@
     resource_group: "{{ resource_group }}"
     account_type: Standard_LRS
     https_only: true
-    minimum_tls_version: 'TLS1_2'
+    minimum_tls_version: TLS1_2
     allow_blob_public_access: false
-    public_network_access: 'Disabled'
+    public_network_access: Disabled
   register: output
 - name: Assert desired account config
   assert:
@@ -454,9 +455,9 @@
     resource_group: "{{ resource_group }}"
     account_type: Standard_LRS
     https_only: true
-    minimum_tls_version: 'TLS1_2'
+    minimum_tls_version: TLS1_2
     allow_blob_public_access: false
-    public_network_access: 'Disabled'
+    public_network_access: Disabled
   register: output
 - name: Assert no change
   assert:
@@ -484,20 +485,20 @@
   register: output
 - assert:
     that:
-      - "output.state.tags | length == 2"
-      - "output.state.tags.testing == 'testing'"
-      - "output.state.tags.delete == 'never'"
+      - output.state.tags | length == 2
+      - output.state.tags.testing == 'testing'
+      - output.state.tags.delete == 'never'
 
 - name: Gather facts connection string and blob_cors
   azure_rm_storageaccount_info:
     resource_group: "{{ resource_group }}"
     name: "{{ storage_account_name_explicit }}"
-    show_connection_string: True
-    show_blob_cors: True
+    show_connection_string: true
+    show_blob_cors: true
   register: output
 - assert:
     that:
-      - "output.storageaccounts | length == 1"
+      - output.storageaccounts | length == 1
       - not output.storageaccounts[0].custom_domain
       - output.storageaccounts[0].account_type == "Premium_LRS"
       - output.storageaccounts[0].primary_endpoints.blob.connectionstring
@@ -574,14 +575,14 @@
   register: output
 - assert:
     that:
-      - "output.storageaccounts | length >= 2"
+      - output.storageaccounts | length >= 2
 
 - name: Delete storage accounts
   azure_rm_storageaccount:
     resource_group: "{{ resource_group }}"
     name: "{{ item }}"
     state: absent
-    force_delete_nonempty: True
+    force_delete_nonempty: true
   loop:
     - "{{ storage_account_name_default }}"
     - "{{ storage_account_name_explicit }}"

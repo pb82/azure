@@ -1,20 +1,21 @@
+---
 - name: Prepare random number
   set_fact:
     random_postfix: "{{ 1000 | random }}{{ resource_group | hash('md5') | truncate(7, True, '') }}"
     tenant_id: "{{ azure_tenant }}"
     run_azuread_tests: false
-    azuread_group_name: "Test Security Group"
+    azuread_group_name: Test Security Group
     azuread_group_id: "00000000-0000-0000-0000-000000000000"
-  run_once: yes
+  run_once: true
 
 - name: Create instance of SQL Server -- check mode
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     location: eastus
     admin_username: mylogin
     admin_password: Password123!
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -24,7 +25,7 @@
 - name: Create instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     location: eastus
     admin_username: mylogin
     admin_password: Password123!
@@ -40,7 +41,7 @@
 - name: Create again instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     location: eastus
     admin_username: mylogin
     admin_password: Password123!
@@ -54,11 +55,11 @@
 - name: Create extended instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-extended-{{ random_postfix }}"
+    name: sqlsrv-extended-{{ random_postfix }}
     location: eastus
     admin_username: mylogin2
     admin_password: Password123!
-    minimal_tls_version: '1.2'
+    minimal_tls_version: "1.2"
     public_network_access: Disabled
     restrict_outbound_network_access: Enabled
     tags:
@@ -73,11 +74,11 @@
 - name: Create extended instance of SQL Server - idempotent
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-extended-{{ random_postfix }}"
+    name: sqlsrv-extended-{{ random_postfix }}
     location: eastus
     admin_username: mylogin2
     admin_password: Password123!
-    minimal_tls_version: '1.2'
+    minimal_tls_version: "1.2"
     public_network_access: Disabled
     restrict_outbound_network_access: Enabled
     tags:
@@ -92,7 +93,7 @@
 - name: Update SQL admin password
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-extended-{{ random_postfix }}"
+    name: sqlsrv-extended-{{ random_postfix }}
     location: eastus
     admin_password: Password123!321!
     change_admin_password: true
@@ -105,7 +106,7 @@
 - name: Create instance of SQL Server with Azure AD admin
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-azuread-{{ random_postfix }}"
+    name: sqlsrv-azuread-{{ random_postfix }}
     location: eastus
     admin_username: sqllogin
     admin_password: Password123!
@@ -127,7 +128,7 @@
 - name: Create instance of SQL Server with Azure AD admin - idempotent
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-azuread-{{ random_postfix }}"
+    name: sqlsrv-azuread-{{ random_postfix }}
     location: eastus
     admin_username: sqllogin
     admin_password: Password123!
@@ -151,7 +152,7 @@
 - name: Gather facts SQL Server
   azure_rm_sqlserver_info:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv{{ random_postfix }}"
+    server_name: sqlsrv{{ random_postfix }}
   register: output
 - name: Assert that facts are returned
   assert:
@@ -172,7 +173,7 @@
 - name: Gather facts for extended SQL Server
   azure_rm_sqlserver_info:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv-extended-{{ random_postfix }}"
+    server_name: sqlsrv-extended-{{ random_postfix }}
   register: output
 - name: Assert that facts are returned
   assert:
@@ -196,7 +197,7 @@
 - name: Gather facts for SQL Server with Azure AD admin
   azure_rm_sqlserver_info:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv-azuread-{{ random_postfix }}"
+    server_name: sqlsrv-azuread-{{ random_postfix }}
   register: output
   when: run_azuread_tests | bool
 - name: Assert that facts are returned
@@ -224,7 +225,7 @@
 - name: Gather facts SQL Server - unexisting
   azure_rm_sqlserver_info:
     resource_group: "{{ resource_group }}"
-    server_name: "unexisting"
+    server_name: unexisting
   register: output
 - name: Assert that facts are returned
   assert:
@@ -257,7 +258,7 @@
     server_name: sqlsrv{{ random_postfix }}
     name: database{{ random_postfix }}
     location: eastus
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -406,7 +407,7 @@
     server_name: sqlsrv{{ random_postfix }}
     name: database{{ random_postfix }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -447,14 +448,14 @@
     sku:
       name: S0
       tier: Standard
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has not changed
   assert:
     that:
       - output.changed
 
-- name: Create SQL Database with sku 
+- name: Create SQL Database with sku
   azure_rm_sqldatabase:
     resource_group: "{{ resource_group }}"
     server_name: sqlsrv{{ random_postfix }}
@@ -471,7 +472,7 @@
     that:
       - output.changed
       - output.status == 'Online'
- 
+
 - name: Gather facts SQL Database with good SKU
   azure_rm_sqldatabase_info:
     resource_group: "{{ resource_group }}"
@@ -490,7 +491,7 @@
       - output.databases[0].sku.capacity != None
       - output.databases[0].kind != None
       - output.databases[0].status != None
-     
+
 - name: Create again instance of SQL Database with same SKU
   azure_rm_sqldatabase:
     resource_group: "{{ resource_group }}"
@@ -587,11 +588,11 @@
 - name: Create instance of Firewall Rule -- check mode
   azure_rm_sqlfirewallrule:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv{{ random_postfix }}"
+    server_name: sqlsrv{{ random_postfix }}
     name: firewallrule{{ random_postfix }}
     start_ip_address: 172.28.10.136
     end_ip_address: 172.28.10.138
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -601,7 +602,7 @@
 - name: Create instance of Firewall Rule
   azure_rm_sqlfirewallrule:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv{{ random_postfix }}"
+    server_name: sqlsrv{{ random_postfix }}
     name: firewallrule{{ random_postfix }}
     start_ip_address: 172.28.10.136
     end_ip_address: 172.28.10.138
@@ -614,7 +615,7 @@
 - name: Create again instance of Firewall Rule
   azure_rm_sqlfirewallrule:
     resource_group: "{{ resource_group }}"
-    server_name: "sqlsrv{{ random_postfix }}"
+    server_name: sqlsrv{{ random_postfix }}
     name: firewallrule{{ random_postfix }}
     start_ip_address: 172.28.10.136
     end_ip_address: 172.28.10.138
@@ -708,10 +709,10 @@
     resource_group: "{{ resource_group }}"
     server_name: sqlsrv{{ random_postfix }}
     name: EP{{ random_postfix }}
-    zone_redundant: False
+    zone_redundant: false
     tags:
       aaa: bbb
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -723,7 +724,7 @@
     resource_group: "{{ resource_group }}"
     server_name: sqlsrv{{ random_postfix }}
     name: EP{{ random_postfix }}
-    zone_redundant: False
+    zone_redundant: false
     tags:
       aaa: bbb
   register: output
@@ -738,7 +739,7 @@
     resource_group: "{{ resource_group }}"
     server_name: sqlsrv{{ random_postfix }}
     name: EP{{ random_postfix }}
-    zone_redundant: False
+    zone_redundant: false
     tags:
       aaa: bbb
   register: output
@@ -753,7 +754,7 @@
     resource_group: "{{ resource_group }}"
     server_name: sqlsrv{{ random_postfix }}
     name: EP{{ random_postfix }}
-    zone_redundant: True
+    zone_redundant: true
     tags:
       aaa1: bbb1
   register: output
@@ -795,9 +796,9 @@
 - name: Delete instance of SQL Server -- check mode
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -807,7 +808,7 @@
 - name: Delete instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     state: absent
   register: output
 - name: Assert the state has changed
@@ -818,7 +819,7 @@
 - name: Delete unexisting instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv{{ random_postfix }}"
+    name: sqlsrv{{ random_postfix }}
     state: absent
   register: output
 - name: Assert the state has changed
@@ -829,12 +830,12 @@
 - name: Delete extended instance of SQL Server
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-extended-{{ random_postfix }}"
+    name: sqlsrv-extended-{{ random_postfix }}
     state: absent
 
 - name: Delete instance of SQL Server with Azure AD admin
   azure_rm_sqlserver:
     resource_group: "{{ resource_group }}"
-    name: "sqlsrv-azuread-{{ random_postfix }}"
+    name: sqlsrv-azuread-{{ random_postfix }}
     state: absent
   when: run_azuread_tests | bool

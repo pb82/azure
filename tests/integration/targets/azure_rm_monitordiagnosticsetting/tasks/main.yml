@@ -1,23 +1,24 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 # ------ setup ------
 
 - name: create virtual network
   azure_rm_virtualnetwork:
-    name: "vnet-{{ rpfx }}"
+    name: vnet-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    address_prefixes: "10.0.0.0/16"
+    address_prefixes: 10.0.0.0/16
   register: vnet_output
 
 - name: create web app
   azure_rm_webapp:
-    name: "webapp-{{ rpfx }}"
+    name: webapp-{{ rpfx }}
     resource_group: "{{ resource_group }}"
     plan:
-      name: "webapp-{{ rpfx }}-plan"
+      name: webapp-{{ rpfx }}-plan
       resource_group: "{{ resource_group }}"
       is_linux: false
       sku: S1
@@ -25,7 +26,7 @@
 
 - name: create storage account
   azure_rm_storageaccount:
-    name: "storage{{ rpfx }}"
+    name: storage{{ rpfx }}
     resource_group: "{{ resource_group }}"
     account_type: Standard_LRS
     kind: StorageV2
@@ -33,7 +34,7 @@
 
 - name: create second storage account
   azure_rm_storageaccount:
-    name: "storagesecond{{ rpfx }}"
+    name: storagesecond{{ rpfx }}
     resource_group: "{{ resource_group_secondary }}"
     account_type: Standard_LRS
     kind: StorageV2
@@ -41,13 +42,13 @@
 
 - name: create event hub namespace
   azure_rm_eventhub:
-    namespace_name: "hub-{{ rpfx }}"
+    namespace_name: hub-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    sku: "Basic"
+    sku: Basic
 
 - name: create log analytics workspace
   azure_rm_loganalyticsworkspace:
-    name: "analytics-{{ rpfx }}"
+    name: analytics-{{ rpfx }}
     resource_group: "{{ resource_group_secondary }}"
     retention_in_days: 30
   register: analytics_output
@@ -56,7 +57,7 @@
 
 - name: get diagnostic settings for non-existant resource
   azure_rm_monitordiagnosticsetting_info:
-    resource: "123abc"
+    resource: 123abc
   register: output
   failed_when: '"failed" not in output.msg | lower'
 
@@ -72,13 +73,13 @@
 
 - name: create storage-based diagnostic setting for vnet (check mode)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
     storage_account: "{{ storage_output.state.id }}"
     logs:
-      - category_group: "allLogs"
+      - category_group: allLogs
     metrics:
-      - category: "AllMetrics"
+      - category: AllMetrics
   check_mode: true
   register: output
 - name: assert resource created
@@ -88,13 +89,13 @@
 
 - name: create storage-based diagnostic setting for vnet (actually create)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
     storage_account: "{{ storage_output.state.id }}"
     logs:
-      - category_group: "allLogs"
+      - category_group: allLogs
     metrics:
-      - category: "AllMetrics"
+      - category: AllMetrics
   register: output
 - name: assert resource created
   assert:
@@ -113,13 +114,13 @@
 
 - name: create storage-based diagnostic setting for vnet (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
     storage_account: "{{ storage_output.state.id }}"
     logs:
-      - category_group: "allLogs"
+      - category_group: allLogs
     metrics:
-      - category: "AllMetrics"
+      - category: AllMetrics
   check_mode: true
   register: output
 - name: assert resource not changed
@@ -129,16 +130,16 @@
 
 - name: create storage-based diagnostic setting for vnet by resource dict (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource:
-      name: "vnet-{{ rpfx }}"
-      type: "Microsoft.Network/virtualNetworks"
+      name: vnet-{{ rpfx }}
+      type: Microsoft.Network/virtualNetworks
       resource_group: "{{ resource_group }}"
     storage_account: "{{ storage_output.state.id }}"
     logs:
-      - category_group: "allLogs"
+      - category_group: allLogs
     metrics:
-      - category: "AllMetrics"
+      - category: AllMetrics
   register: output
 - name: assert resource not changed
   assert:
@@ -147,11 +148,11 @@
 
 - name: update storage-based diagnostic setting for vnet
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
     storage_account: "{{ storage_output.state.id }}"
     logs:
-      - category_group: "allLogs"
+      - category_group: allLogs
   register: output
 - name: assert resource updated
   assert:
@@ -168,13 +169,13 @@
 
 - name: create second storage-based diagnostic setting for vnet
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage2"
+    name: logs-storage2
     resource: "{{ vnet_output.state.id }}"
     storage_account:
-      name: "storagesecond{{ rpfx }}"
+      name: storagesecond{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     logs:
-      - category: "VMProtectionAlerts"
+      - category: VMProtectionAlerts
         retention_policy:
           days: 15
   register: output
@@ -195,13 +196,13 @@
 
 - name: update second storage-based diagnostic setting for vnet
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage2"
+    name: logs-storage2
     resource: "{{ vnet_output.state.id }}"
     storage_account:
-      name: "storagesecond{{ rpfx }}"
+      name: storagesecond{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     logs:
-      - category: "VMProtectionAlerts"
+      - category: VMProtectionAlerts
         retention_policy:
           days: 30
   register: output
@@ -213,13 +214,13 @@
 
 - name: update second storage-based diagnostic setting for vnet (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage2"
+    name: logs-storage2
     resource: "{{ vnet_output.state.id }}"
     storage_account:
-      name: "storagesecond{{ rpfx }}"
+      name: storagesecond{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     logs:
-      - category: "VMProtectionAlerts"
+      - category: VMProtectionAlerts
         retention_policy:
           days: 30
   register: output
@@ -257,7 +258,7 @@
 
 - name: get specific diagnostic settings for virtual network
   azure_rm_monitordiagnosticsetting_info:
-    name: "logs-storage2"
+    name: logs-storage2
     resource: "{{ vnet_output.state.id }}"
   register: output
 - name: assert output maches expectations
@@ -277,7 +278,7 @@
 
 - name: get non-existant diagnostic setting for virtual network
   azure_rm_monitordiagnosticsetting_info:
-    name: "does-not-exist"
+    name: does-not-exist
     resource: "{{ vnet_output.state.id }}"
   register: output
 - name: assert no settings
@@ -287,26 +288,26 @@
 
 - name: create diagnostic setting for webapp with log analytics, event hub, and storage
   azure_rm_monitordiagnosticsetting:
-    name: "logs"
+    name: logs
     resource:
-      name: "webapp-{{ rpfx }}"
-      type: "Microsoft.Web/sites"
+      name: webapp-{{ rpfx }}
+      type: Microsoft.Web/sites
       resource_group: "{{ resource_group }}"
     event_hub:
-      namespace: "hub-{{ rpfx }}"
-      policy: "RootManageSharedAccessKey"
+      namespace: hub-{{ rpfx }}
+      policy: RootManageSharedAccessKey
     log_analytics:
-      name: "analytics-{{ rpfx }}"
+      name: analytics-{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     storage_account:
-      name: "storage{{ rpfx }}"
+      name: storage{{ rpfx }}
     logs:
-      - category: "AppServiceHTTPLogs"
-      - category: "AppServiceConsoleLogs"
-      - category: "AppServiceAppLogs"
-      - category: "AppServiceAuditLogs"
-      - category: "AppServiceIPSecAuditLogs"
-      - category: "AppServicePlatformLogs"
+      - category: AppServiceHTTPLogs
+      - category: AppServiceConsoleLogs
+      - category: AppServiceAppLogs
+      - category: AppServiceAuditLogs
+      - category: AppServiceIPSecAuditLogs
+      - category: AppServicePlatformLogs
   register: output
 - name: assert resource created
   assert:
@@ -328,26 +329,26 @@
 
 - name: create diagnostic setting for webapp with log analytics, event hub, and storage (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs"
+    name: logs
     resource:
-      name: "webapp-{{ rpfx }}"
-      type: "Microsoft.Web/sites"
+      name: webapp-{{ rpfx }}
+      type: Microsoft.Web/sites
       resource_group: "{{ resource_group }}"
     event_hub:
-      namespace: "hub-{{ rpfx }}"
-      policy: "RootManageSharedAccessKey"
+      namespace: hub-{{ rpfx }}
+      policy: RootManageSharedAccessKey
     log_analytics:
-      name: "analytics-{{ rpfx }}"
+      name: analytics-{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     storage_account:
-      name: "storage{{ rpfx }}"
+      name: storage{{ rpfx }}
     logs:
-      - category: "AppServiceHTTPLogs"
-      - category: "AppServiceConsoleLogs"
-      - category: "AppServiceAppLogs"
-      - category: "AppServiceAuditLogs"
-      - category: "AppServiceIPSecAuditLogs"
-      - category: "AppServicePlatformLogs"
+      - category: AppServiceHTTPLogs
+      - category: AppServiceConsoleLogs
+      - category: AppServiceAppLogs
+      - category: AppServiceAuditLogs
+      - category: AppServiceIPSecAuditLogs
+      - category: AppServicePlatformLogs
   register: output
 - name: assert resource created
   assert:
@@ -356,23 +357,23 @@
 
 - name: update diagnostic setting to remove storage and log category
   azure_rm_monitordiagnosticsetting:
-    name: "logs"
+    name: logs
     resource:
-      name: "webapp-{{ rpfx }}"
-      type: "Microsoft.Web/sites"
+      name: webapp-{{ rpfx }}
+      type: Microsoft.Web/sites
       resource_group: "{{ resource_group }}"
     event_hub:
-      namespace: "hub-{{ rpfx }}"
-      policy: "RootManageSharedAccessKey"
+      namespace: hub-{{ rpfx }}
+      policy: RootManageSharedAccessKey
     log_analytics:
-      name: "analytics-{{ rpfx }}"
+      name: analytics-{{ rpfx }}
       resource_group: "{{ resource_group_secondary }}"
     logs:
-      - category: "AppServiceHTTPLogs"
-      - category: "AppServiceAppLogs"
-      - category: "AppServiceAuditLogs"
-      - category: "AppServiceIPSecAuditLogs"
-      - category: "AppServicePlatformLogs"
+      - category: AppServiceHTTPLogs
+      - category: AppServiceAppLogs
+      - category: AppServiceAuditLogs
+      - category: AppServiceIPSecAuditLogs
+      - category: AppServicePlatformLogs
   register: output
 - name: assert resource updated
   assert:
@@ -388,12 +389,12 @@
 
 - name: delete diagnostic setting via resource dict
   azure_rm_monitordiagnosticsetting:
-    name: "logs"
+    name: logs
     resource:
-      name: "webapp-{{ rpfx }}"
-      type: "Microsoft.Web/sites"
+      name: webapp-{{ rpfx }}
+      type: Microsoft.Web/sites
       resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: assert resource delete
   assert:
@@ -402,12 +403,12 @@
 
 - name: delete diagnostic setting via resource dict (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs"
+    name: logs
     resource:
-      name: "webapp-{{ rpfx }}"
-      type: "Microsoft.Web/sites"
+      name: webapp-{{ rpfx }}
+      type: Microsoft.Web/sites
       resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
   register: output
 - name: assert resource delete
   assert:
@@ -416,9 +417,9 @@
 
 - name: delete diagnostic setting (check mode)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
-    state: "absent"
+    state: absent
   check_mode: true
   register: output
 - name: assert resource deleted
@@ -428,9 +429,9 @@
 
 - name: delete diagnostic setting (actually delete)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
-    state: "absent"
+    state: absent
   register: output
 - name: assert resource deleted
   assert:
@@ -439,9 +440,9 @@
 
 - name: delete diagnostic setting (idempotent)
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage"
+    name: logs-storage
     resource: "{{ vnet_output.state.id }}"
-    state: "absent"
+    state: absent
   register: output
 - name: assert resource already deleted
   assert:
@@ -450,9 +451,9 @@
 
 - name: delete second diagnostic setting
   azure_rm_monitordiagnosticsetting:
-    name: "logs-storage2"
+    name: logs-storage2
     resource: "{{ vnet_output.state.id }}"
-    state: "absent"
+    state: absent
   register: output
 - name: assert resource deleted
   assert:
@@ -463,42 +464,42 @@
 
 - name: delete log analytics workspace
   azure_rm_loganalyticsworkspace:
-    name: "analytics-{{ rpfx }}"
+    name: analytics-{{ rpfx }}
     resource_group: "{{ resource_group_secondary }}"
-    state: "absent"
+    state: absent
 
 - name: delete event hub namespace
   azure_rm_eventhub:
-    namespace_name: "hub-{{ rpfx }}"
+    namespace_name: hub-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
 
 - name: delete second storage account
   azure_rm_storageaccount:
-    name: "storagesecond{{ rpfx }}"
+    name: storagesecond{{ rpfx }}
     resource_group: "{{ resource_group_secondary }}"
-    state: "absent"
+    state: absent
 
 - name: delete storage account
   azure_rm_storageaccount:
-    name: "storage{{ rpfx }}"
+    name: storage{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
 
 - name: delete web app
   azure_rm_webapp:
-    name: "webapp-{{ rpfx }}"
+    name: webapp-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
 
 - name: delete web app plan
   azure_rm_appserviceplan:
-    name: "webapp-{{ rpfx }}-plan"
+    name: webapp-{{ rpfx }}-plan
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent
 
 - name: delete virtual network
   azure_rm_virtualnetwork:
-    name: "vnet-{{ rpfx }}"
+    name: vnet-{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    state: "absent"
+    state: absent

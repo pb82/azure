@@ -1,7 +1,8 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Create instance of PostgreSQL Server -- check mode
   azure_rm_postgresqlserver:
@@ -12,10 +13,10 @@
       tier: Basic
     location: westus2
     storage_mb: 51200
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -31,7 +32,7 @@
       tier: Basic
     location: westus2
     storage_mb: 51200
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -50,7 +51,7 @@
       tier: Basic
     location: westus2
     storage_mb: 51200
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -69,7 +70,7 @@
       tier: Basic
     location: westus2
     storage_mb: 128000
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: output
@@ -100,8 +101,8 @@
       tier: Basic
     location: westus2
     storage_mb: 51200
-    enforce_ssl: True
-    storage_autogrow: True
+    enforce_ssl: true
+    storage_autogrow: true
     backup_retention_days: 7
     admin_username: zimxyz
     admin_password: Password123!
@@ -117,8 +118,8 @@
       tier: Basic
     location: westus2
     storage_mb: 51200
-    enforce_ssl: True
-    storage_autogrow: True
+    enforce_ssl: true
+    storage_autogrow: true
     backup_retention_days: 7
     admin_username: zimxyz
     admin_password: Password123!
@@ -185,7 +186,7 @@
     name: testdatabase
     charset: UTF8
     collation: English_United States.1252
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -227,7 +228,7 @@
     name: testdatabase
     charset: utf8
     collation: en_US.utf8
-  ignore_errors: yes
+  ignore_errors: true
   register: output
 - name: Assert that nothing has changed
   assert:
@@ -241,7 +242,7 @@
     name: testdatabase
     charset: utf8
     collation: en_US.utf8
-    force_update: yes
+    force_update: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -295,7 +296,7 @@
     server_name: postgresqlsrv{{ rpfx }}
     name: testdatabase
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -337,7 +338,7 @@
     name: firewallrule{{ rpfx }}
     start_ip_address: 172.28.10.136
     end_ip_address: 172.28.10.138
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the resource instance is well created
   assert:
@@ -393,7 +394,7 @@
       - output.rules[0].name != None
       - output.rules[0].start_ip_address != None
       - output.rules[0].end_ip_address != None
-      - "output.rules | length == 1"
+      - output.rules | length == 1
 
 - name: Gather facts PostgreSQL Firewall Rule
   azure_rm_postgresqlfirewallrule_info:
@@ -413,7 +414,7 @@
       - output.rules[1].name != None
       - output.rules[1].start_ip_address != None
       - output.rules[1].end_ip_address != None
-      - "output.rules | length == 2"
+      - output.rules | length == 2
 
 - name: Delete instance of Firewall Rule -- check mode
   azure_rm_postgresqlfirewallrule:
@@ -421,7 +422,7 @@
     server_name: postgresqlsrv{{ rpfx }}
     name: firewallrule{{ rpfx }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:
@@ -469,7 +470,7 @@
   assert:
     that:
       - output.changed == False
-      - "output.rules | length == 0"
+      - output.rules | length == 0
 
 #
 # azure_rm_postgresql_configuration
@@ -480,7 +481,7 @@
     server_name: postgresqlsrv{{ rpfx }}
     name: deadlock_timeout
     value: 2000
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert that change was registered
   assert:
@@ -577,7 +578,7 @@
     resource_group: "{{ resource_group }}"
     name: postgresqlsrv{{ rpfx }}
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 - name: Assert the state has changed
   assert:

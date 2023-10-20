@@ -1,6 +1,7 @@
+---
 - name: Create random express route
   set_fact:
-    express_route: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
+    express_route: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
 
 - name: Create Express route (check mode)
   azure_rm_expressroute:
@@ -16,16 +17,15 @@
     service_provider_properties:
       service_provider_name: Aryaka Networks
       peering_location: Seattle
-      bandwidth_in_mbps: '200'
+      bandwidth_in_mbps: "200"
     sku:
       tier: premium
       family: metereddata
   register: results
-  check_mode: yes
+  check_mode: true
 
 - assert:
     that: results.changed
-
 
 - name: Create Express route
   azure_rm_expressroute:
@@ -34,14 +34,14 @@
     resource_group: "{{ resource_group }}"
     allow_classic_operations: true
     global_reach_enabled: false
-    tags: 
+    tags:
       a: b
     authorizations:
       - name: authorization_test
     service_provider_properties:
       service_provider_name: Aryaka Networks
       peering_location: Seattle
-      bandwidth_in_mbps: '200'
+      bandwidth_in_mbps: "200"
     sku:
       tier: premium
       family: metereddata
@@ -50,7 +50,6 @@
 - assert:
     that: results.changed
 
-
 - name: Update Express route
   azure_rm_expressroute:
     location: eastus
@@ -58,24 +57,23 @@
     resource_group: "{{ resource_group }}"
     allow_classic_operations: true
     global_reach_enabled: false
-    tags: 
+    tags:
       test: modified
     authorizations:
       - name: authorization_test
     service_provider_properties:
       service_provider_name: Aryaka Networks
       peering_location: Seattle
-      bandwidth_in_mbps: '200'
+      bandwidth_in_mbps: "200"
     sku:
       tier: premium
       family: metereddata
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.test == 'modified'
-
 
 - name: Retrieve Express Route
   azure_rm_expressroute_info:
@@ -85,7 +83,7 @@
 
 - name: Assert that facts module returned result
   assert:
-    that: 
+    that:
       - results.expressroute[0].tags.test == 'modified'
       - results.expressroute[0].type == 'Microsoft.Network/expressRouteCircuits'
 
@@ -105,7 +103,7 @@
 - name: Delete Express Route
   azure_rm_expressroute:
     resource_group: "{{ resource_group }}"
-    name:  "{{ express_route }}"
+    name: "{{ express_route }}"
     state: absent
 
 - name: Delete Express Route (idempotent)

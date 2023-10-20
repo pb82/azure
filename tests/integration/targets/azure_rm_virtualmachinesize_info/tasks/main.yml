@@ -1,3 +1,4 @@
+---
 - name: set location
   set_fact:
     location: eastus
@@ -9,7 +10,7 @@
   register: output
 
 - assert:
-      that: output['sizes'] | length == 1
+    that: output['sizes'] | length == 1
 
 - name: Get available sizes for a specific location
   azure_rm_virtualmachinesize_info:
@@ -17,4 +18,4 @@
   register: output
 
 - assert:
-      that: output['sizes'] | length > 0
+    that: output['sizes'] | length > 0

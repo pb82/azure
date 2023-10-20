@@ -1,7 +1,8 @@
+---
 - name: Create Azure Search name
   set_fact:
-    search_name: "search{{ resource_group | hash('md5') | truncate(16, True, '') }}"
-    search_name_secondary: "search{{ resource_group | hash('md5') | truncate(16, True, '') }}-secondary"
+    search_name: search{{ resource_group | hash('md5') | truncate(16, True, '') }}
+    search_name_secondary: search{{ resource_group | hash('md5') | truncate(16, True, '') }}-secondary
 
 - name: Create invalid Azure Search - Hosting Name
   azure_rm_cognitivesearch:
@@ -9,11 +10,11 @@
     resource_group: "{{ resource_group }}"
     hosting_mode: highDensity
   register: invalid_hosting_name
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Assert task failed
   assert:
-    that: 
+    that:
       - invalid_hosting_name.failed == True
 
 - name: Create invalid Azure Search - Partition Count High Density
@@ -24,11 +25,11 @@
     hosting_mode: highDensity
     partition_count: 4
   register: invalid_partition_count
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Assert task failed
   assert:
-    that: 
+    that:
       - invalid_partition_count.failed == True
 
 - name: Create invalid Azure Search - Partition Count
@@ -37,11 +38,11 @@
     resource_group: "{{ resource_group }}"
     partition_count: 7
   register: invalid_partition_count
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Assert task failed
   assert:
-    that: 
+    that:
       - invalid_partition_count.failed == True
 
 - name: Create invalid Azure Search - Replica Count
@@ -51,11 +52,11 @@
     sku: standard
     replica_count: 13
   register: invalid_replica_count
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Assert task failed
   assert:
-    that: 
+    that:
       - invalid_replica_count.failed == True
 
 - name: Create invalid Azure Search - Replica Count SKU basic
@@ -65,11 +66,11 @@
     replica_count: 4
     sku: basic
   register: invalid_replica_count
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Assert task failed
   assert:
-    that: 
+    that:
       - invalid_replica_count.failed == True
 
 - name: Create basic Azure Search
@@ -191,4 +192,3 @@
     name: "{{ search_name_secondary }}"
     resource_group: "{{ resource_group }}"
     state: absent
-  

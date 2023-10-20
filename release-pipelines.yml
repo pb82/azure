@@ -1,12 +1,13 @@
+---
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
 trigger:
- tags:
-   include:
-     - v*.*.*
+  tags:
+    include:
+      - v*.*.*
 
 pr: none
 
@@ -14,16 +15,16 @@ pool:
   name: pool-ubuntu-2004
 
 steps:
-- script: |
-    pip install wheel
-    pip install ansible==v2.14.0
-    ansible --version
-  displayName: 'install ansible'
+  - script: |
+      pip install wheel
+      pip install ansible==v2.14.0
+      ansible --version
+    displayName: install ansible
 
-- script: |
-    ansible-galaxy collection build .
-  displayName: 'build collection'
+  - script: |
+      ansible-galaxy collection build .
+    displayName: build collection
 
-- script: |
-    ansible-galaxy collection publish *.tar.gz --api-key $(GALAXY_KEY)
-  displayName: 'publish collection'
+  - script: |
+      ansible-galaxy collection publish *.tar.gz --api-key $(GALAXY_KEY)
+    displayName: publish collection

@@ -1,14 +1,15 @@
+---
 - name: Prepare facts
   set_fact:
     resource_prefix: "{{ resource_group_secondary | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Prepare facts
   set_fact:
     linux_plan_resource_group: "{{ resource_group_secondary }}"
     win_plan_name: "{{ (resource_prefix | replace('-','x'))[-8:] }}winplan"
     linux_plan_name: "{{ (resource_prefix | replace('-','x'))[-8:] }}linplan"
-  run_once: yes
+  run_once: true
 
 - name: create a windows plan
   azure_rm_appserviceplan:

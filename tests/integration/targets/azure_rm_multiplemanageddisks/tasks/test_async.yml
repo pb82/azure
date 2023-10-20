@@ -1,3 +1,4 @@
+---
 # setup: create virtual machines to attach disks on
 - name: Create virtual network
   azure_rm_virtualnetwork:
@@ -16,21 +17,21 @@
 
 - name: Create virtual machines
   azure_rm_virtualmachine:
-      resource_group: "{{ resource_group_secondary }}"
-      name: "{{ async_virtual_machine_prefix }}-{{ item }}"
-      vm_size: Standard_E2_v3
-      managed_disk_type: Standard_LRS
-      virtual_network: "{{ async_virtual_network }}-{{ item }}"
-      admin_username: adminuser
-      admin_password: "!test123@"
-      os_type: Linux
-      image:
-        offer: 0001-com-ubuntu-server-focal
-        publisher: Canonical
-        sku: 20_04-lts
-        version: latest
-      tags:
-        key: value
+    resource_group: "{{ resource_group_secondary }}"
+    name: "{{ async_virtual_machine_prefix }}-{{ item }}"
+    vm_size: Standard_E2_v3
+    managed_disk_type: Standard_LRS
+    virtual_network: "{{ async_virtual_network }}-{{ item }}"
+    admin_username: adminuser
+    admin_password: "!test123@"
+    os_type: Linux
+    image:
+      offer: "0001-com-ubuntu-server-focal"
+      publisher: Canonical
+      sku: 20_04-lts
+      version: latest
+    tags:
+      key: value
   with_sequence: start=1 end="{{ async_number_virtual_machine }}"
   register: create_vms
   async: 1000

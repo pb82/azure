@@ -1,15 +1,16 @@
+---
 - name: Create random event hub and namespace
   set_fact:
-      namespace_name: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
-      name: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
+    namespace_name: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
+    name: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
 
 - name: Create Event Hub Namespace (check mode)
   azure_rm_eventhub:
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "Basic"
-  check_mode: yes
+    sku: Basic
+  check_mode: true
   register: results
 
 - assert:
@@ -21,8 +22,8 @@
     namespace_name: "{{ namespace_name }}"
     name: "{{ name }}"
     resource_group: "{{ resource_group }}"
-    sku: "Basic"
-  check_mode: yes
+    sku: Basic
+  check_mode: true
   register: results
 
 - assert:
@@ -33,7 +34,7 @@
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "Basic"
+    sku: Basic
   register: results
 
 - assert:
@@ -55,13 +56,13 @@
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "Standard"
+    sku: Standard
     tags:
       test: modified
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.test == 'modified'
 
@@ -78,7 +79,7 @@
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
 
 - name: Retrieve Namespace
@@ -92,7 +93,7 @@
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "Standard"
+    sku: Standard
     tags:
       test: modified
   register: results

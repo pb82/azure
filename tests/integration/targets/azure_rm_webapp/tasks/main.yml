@@ -1,7 +1,8 @@
+---
 - name: Prepare facts
   set_fact:
     resource_prefix: "{{ resource_group_secondary | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Fix resource prefix
   set_fact:
@@ -10,7 +11,7 @@
     linux_app_name: "{{ (resource_prefix | replace('-','x'))[-8:] }}{{ 1000 | random}}linuxapp"
     win_plan_name: "{{ (resource_prefix | replace('-','x'))[-8:] }}winplan"
     linux_plan_name: "{{ (resource_group_secondary | replace('-','x'))[-8:] }}linplan"
-    slot1_name: "stage1"
+    slot1_name: stage1
 
 - name: Create a windows web app with non-exist app service plan
   azure_rm_webapp:
@@ -39,8 +40,7 @@
 
 - name: assert output changed
   assert:
-    that:
-      output.changed
+    that: output.changed
 
 - name: get the web app
   azure_rm_webapp_info:
@@ -81,13 +81,13 @@
     name: "{{ win_app_name }}4"
     plan: "{{ win_plan_name }}"
     frameworks:
-      - name: "java"
+      - name: java
         version: "1.8"
         settings:
-          java_container: "Tomcat"
+          java_container: Tomcat
           java_container_version: "8.0"
     app_settings:
-      testkey: "testvalue"
+      testkey: testvalue
   register: output
 
 - name: assert the web app was created
@@ -104,7 +104,7 @@
     that:
       - output.webapps | length == 1
       - output.webapps[0].app_settings | length == 1
-      - output.webapps[0].frameworks | length > 1  # there's default frameworks eg net_framework
+      - output.webapps[0].frameworks | length > 1 # there's default frameworks eg net_framework
 
 - name: Update app settings and framework
   azure_rm_webapp:
@@ -112,19 +112,19 @@
     name: "{{ win_app_name }}4"
     plan: "{{ win_plan_name }}"
     frameworks:
-      - name: "java"
+      - name: java
         version: "1.7"
         settings:
-          java_container: "Tomcat"
+          java_container: Tomcat
           java_container_version: "8.5"
     app_settings:
-      testkey2: "testvalue2"
+      testkey2: testvalue2
   register: output
 
 - name: Assert the web app was updated
   assert:
     that:
-    - output.changed
+      - output.changed
 
 - name: get web app with name
   azure_rm_webapp_info:
@@ -135,9 +135,9 @@
 - name: Assert updating
   assert:
     that:
-    - output.webapps[0].app_settings | length == 2
-    - output.webapps[0].app_settings['testkey'] == 'testvalue'
-    - output.webapps[0].app_settings['testkey2'] == 'testvalue2'
+      - output.webapps[0].app_settings | length == 2
+      - output.webapps[0].app_settings['testkey'] == 'testvalue'
+      - output.webapps[0].app_settings['testkey2'] == 'testvalue2'
 
 - name: get web app with return publishing profile
   azure_rm_webapp_info:
@@ -170,11 +170,11 @@
     name: "{{ win_app_name }}5"
     plan: "{{ win_plan_name }}"
     frameworks:
-      - name: "python"
+      - name: python
         version: "2.7"
       - name: node
         version: "6.6"
-      - name: "php"
+      - name: php
         version: "7.0"
   register: output
 
@@ -193,7 +193,7 @@
       sku: S1
       number_of_workers: 1
     container_settings:
-      name: "ansible/ansible:ubuntu1404"
+      name: ansible/ansible:ubuntu1404
   register: output
 
 - name: Assert the web app was created
@@ -208,7 +208,7 @@
       resource_group: "{{ linux_app_plan_resource_group }}"
       name: "{{ linux_plan_name }}"
     container_settings:
-      name: "ansible/ansible:ubuntu1404"
+      name: ansible/ansible:ubuntu1404
       registry_server_url: test.io
       registry_server_user: user
       registry_server_password: password
@@ -244,7 +244,7 @@
 
 - assert:
     that: not output.changed
-    
+
 - name: Update nodejs framework
   azure_rm_webapp:
     resource_group: "{{ resource_group }}"
@@ -269,7 +269,7 @@
       resource_group: "{{ linux_app_plan_resource_group }}"
       name: "{{ linux_plan_name }}"
     deployment_source:
-      url: "https://github.com/test/test"
+      url: https://github.com/test/test
       branch: master
     scm_type: GitHub
   register: output
@@ -295,12 +295,12 @@
     name: "{{ win_app_name }}11"
     plan: "{{ win_plan_name }}"
     frameworks:
-      - name: "python"
+      - name: python
         version: "2.7"
-      - name: "java"
+      - name: java
         version: "1.8"
   register: fail_win_java_version_mutual_exclusive
-  failed_when: 'fail_win_java_version_mutual_exclusive.msg != "Java is mutually exclusive with other frameworks."'
+  failed_when: fail_win_java_version_mutual_exclusive.msg != "Java is mutually exclusive with other frameworks."
 
 - name: assert error when linux web app, only can specify one framework
   azure_rm_webapp:
@@ -310,9 +310,9 @@
       resource_group: "{{ linux_app_plan_resource_group }}"
       name: "{{ linux_plan_name }}"
     frameworks:
-      - name: "python"
+      - name: python
         version: "2.7"
-      - name: "node"
+      - name: node
         version: "6.6"
   register: fail_linux_one_framework_only
   failed_when: fail_linux_one_framework_only.msg != "Can specify one framework only for Linux web app."
@@ -328,7 +328,7 @@
       - name: java
         version: "8"
         settings:
-          java_container: "tomcat"
+          java_container: tomcat
           java_container_version: "8.5"
   register: output
 
@@ -361,13 +361,13 @@
       - name: java
         version: "8"
         settings:
-          java_container: "tomcat"
+          java_container: tomcat
           java_container_version: "8.5"
     client_affinity_enabled: false
     https_only: true
     always_on: true
     min_tls_version: "1.2"
-    ftps_state: "Disabled"
+    ftps_state: Disabled
   register: output
 - name: Assert the web app was created
   assert:
@@ -386,13 +386,13 @@
       - name: java
         version: "8"
         settings:
-          java_container: "tomcat"
+          java_container: tomcat
           java_container_version: "8.5"
     client_affinity_enabled: false
     https_only: true
     always_on: true
     min_tls_version: "1.2"
-    ftps_state: "Disabled"
+    ftps_state: Disabled
   register: output
 - name: Assert the web app not changed
   assert:
@@ -423,13 +423,13 @@
       - name: java
         version: "8"
         settings:
-          java_container: "tomcat"
+          java_container: tomcat
           java_container_version: "8.5"
     client_affinity_enabled: false
     https_only: true
     always_on: true
     min_tls_version: "1.2"
-    ftps_state: "FtpsOnly"
+    ftps_state: FtpsOnly
   register: output
 - name: Assert the web app was updated
   assert:
@@ -454,8 +454,8 @@
     name: "{{ slot1_name }}"
     configuration_source: "{{ win_app_name }}13"
     app_settings:
-        testkey: testvalue
-  check_mode: yes
+      testkey: testvalue
+  check_mode: true
   register: output
 
 - name: Assert slot check mode creation
@@ -470,7 +470,7 @@
     name: "{{ slot1_name }}"
     configuration_source: "{{ win_app_name }}13"
     app_settings:
-        testkey: testvalueslot
+      testkey: testvalueslot
   register: output
 
 - name: Assert slot creation
@@ -484,7 +484,7 @@
     webapp_name: "{{ win_app_name }}13"
     name: "{{ slot1_name }}"
     app_settings:
-        testkey: testvalueslot
+      testkey: testvalueslot
   register: output
 
 - name: Assert idempotence
@@ -498,10 +498,10 @@
     webapp_name: "{{ win_app_name }}13"
     name: "{{ slot1_name }}"
     frameworks:
-      - name: "node"
+      - name: node
         version: "10.1"
     app_settings:
-        testkey: testvalue2
+      testkey: testvalue2
   register: output
 
 - name: Assert updating

@@ -1,6 +1,7 @@
+---
 - name: Create host group name
   set_fact:
-    group_name: "hostgroup{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    group_name: hostgroup{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create a host group
   azure_rm_hostgroup:
@@ -42,7 +43,7 @@
     platform_fault_domain_count: 1
     state: present
     tags:
-      key1: "value1"
+      key1: value1
   register: results
 
 - name: Assert that host group is updated

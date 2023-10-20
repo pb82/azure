@@ -1,6 +1,7 @@
+---
 - name: Create data factory name
   set_fact:
-    name: "df{{ resource_group | hash('md5') | truncate(21, True, '') }}"
+    name: df{{ resource_group | hash('md5') | truncate(21, True, '') }}
 
 - name: Create data factory (Checkmode)
   azure_rm_datafactory:
@@ -9,9 +10,9 @@
     public_network_access: Enabled
     tags:
       key1: value1
-  check_mode: True
+  check_mode: true
 
-- name: Create data factory 
+- name: Create data factory
   azure_rm_datafactory:
     resource_group: "{{ resource_group }}"
     name: "{{ name }}"
@@ -63,7 +64,6 @@
       - output.datafactory[0].tags | length == 2
       - output.datafactory[0].public_network_access == 'Disabled'
 
-        
 - name: Delete data factory
   azure_rm_datafactory:
     resource_group: "{{ resource_group }}"

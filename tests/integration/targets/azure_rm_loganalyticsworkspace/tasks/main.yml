@@ -1,6 +1,7 @@
+---
 - name: Prepare random number
   set_fact:
-    name: "loganalytics{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
+    name: loganalytics{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}
     retention_days: 60
 
 - name: Create Log Analytics Workspace (Check Mode On)
@@ -11,7 +12,7 @@
       Containers: true
     retention_in_days: "{{ retention_days }}"
     resource_group: "{{ resource_group }}"
-  check_mode: yes
+  check_mode: true
   register: output
 
 - assert:
@@ -131,7 +132,7 @@
     name: "{{ name }}"
     resource_group: "{{ resource_group }}"
     state: absent
-  check_mode: yes
+  check_mode: true
   register: output
 
 - assert:
