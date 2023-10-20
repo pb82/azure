@@ -1,6 +1,7 @@
+---
 - name: Set Private Endpoint Name
   set_fact:
-    rpfx: "private{{ resource_group | hash('md5') | truncate(18, True, '') }}"
+    rpfx: private{{ resource_group | hash('md5') | truncate(18, True, '') }}
 
 - name: Create virtual network
   azure_rm_virtualnetwork:
@@ -22,7 +23,7 @@
     name: subnet{{ rpfx }}
     virtual_network_name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
-    address_prefix_cidr: "10.1.0.0/16"
+    address_prefix_cidr: 10.1.0.0/16
     security_group: secgroup{{ rpfx }}
     private_endpoint_network_policies: Disabled
     private_link_service_network_policies: Disabled
@@ -42,7 +43,7 @@
       tier: GeneralPurpose
     location: eastus
     storage_mb: 51200
-    enforce_ssl: True
+    enforce_ssl: true
     admin_username: zimxyz
     admin_password: Password123!
   register: post_output
@@ -88,15 +89,15 @@
           - postgresqlServer
     subnet:
       id: "{{ subnet_output.state.id }}"
-    tags: 
+    tags:
       key1: value1
   register: output
 
 - name: Assert status succeeded and results match expectations
   assert:
-   that:
+    that:
       - not output.changed
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Update private endpoint with tags
   azure_rm_privateendpoint:
@@ -109,7 +110,7 @@
           - postgresqlServer
     subnet:
       id: "{{ subnet_output.state.id }}"
-    tags: 
+    tags:
       key1: value1
       key2: value2
   register: output

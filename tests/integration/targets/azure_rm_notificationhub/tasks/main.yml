@@ -1,15 +1,16 @@
+---
 - name: Create random notification hub and namespace
   set_fact:
-      namespace_name: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
-      name: "test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
+    namespace_name: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
+    name: test{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}
 
 - name: Create Notification Hub Namespace (check mode)
   azure_rm_notificationhub:
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "free"
-  check_mode: yes
+    sku: free
+  check_mode: true
   register: results
 
 - assert:
@@ -21,8 +22,8 @@
     namespace_name: "{{ namespace_name }}"
     name: "{{ name }}"
     resource_group: "{{ resource_group }}"
-    sku: "free"
-  check_mode: yes
+    sku: free
+  check_mode: true
   register: results
 
 - assert:
@@ -33,7 +34,7 @@
     location: eastus2
     namespace_name: "{{ namespace_name }}"
     resource_group: "{{ resource_group }}"
-    sku: "free"
+    sku: free
   register: results
 
 - assert:
@@ -45,7 +46,7 @@
     namespace_name: "{{ namespace_name }}"
     name: "{{ name }}"
     resource_group: "{{ resource_group }}"
-    sku: "free"
+    sku: free
   register: results
 
 - assert:
@@ -61,10 +62,9 @@
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.test == 'modified'
-
 
 - name: Update Notification Hub
   azure_rm_notificationhub:
@@ -77,7 +77,7 @@
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.test == 'modified'
 
@@ -89,7 +89,7 @@
 
 - name: Assert that facts module returned result
   assert:
-    that: 
+    that:
       - results.namespace[0].tags.test == 'modified'
 
 - name: Test idempotent

@@ -1,6 +1,7 @@
+---
 - name: Create proximity placement group name
   set_fact:
-    group_name: "ppg{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    group_name: ppg{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create a proximity placement group
   azure_rm_proximityplacementgroup:
@@ -32,7 +33,7 @@
     location: eastus
     name: "{{ group_name }}"
     tags:
-      key1: "value1"
+      key1: value1
     state: present
   register: results
 

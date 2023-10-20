@@ -1,10 +1,11 @@
+---
 - name: set facts
   set_fact:
     subscription_id: "{{ azure_subscription_id }}"
     managed_by_tenant_id: "{{ azure_managed_by_tenant_id }}"
     principal_id: "{{ azure_principal_id }}"
     role_definition_id: "{{ azure_role_definition_id }}"
-  run_once: yes
+  run_once: true
 
 - name: Create a RegistrationDefinition
   azure_rm_registrationdefinition:
@@ -23,13 +24,13 @@
     properties:
       registration_definition_id: "{{ output1.state.id }}"
   register: output
-  check_mode: yes
+  check_mode: true
 
 - assert:
     that:
-      - output.changed 
+      - output.changed
 
-- name: Create a RegistrationAssignment 
+- name: Create a RegistrationAssignment
   azure_rm_registrationassignment:
     scope: subscriptions/{{ subscription_id }}
     properties:
@@ -43,7 +44,7 @@
 - name: Create a RegistrationAssignment -- idempotent
   azure_rm_registrationassignment:
     scope: subscriptions/{{ subscription_id }}
-    registration_assignment_id:  "{{ output2.state.name }}"
+    registration_assignment_id: "{{ output2.state.name }}"
     properties:
       registration_definition_id: "{{ output1.state.id }}"
   register: output
@@ -55,7 +56,7 @@
 - name: Get a RegistrationAssignment
   azure_rm_registrationassignment_info:
     scope: subscriptions/{{ subscription_id }}
-    registration_assignment_id:  "{{ output2.state.name }}"
+    registration_assignment_id: "{{ output2.state.name }}"
   register: output
 
 - assert:
@@ -74,5 +75,5 @@
 - name: Delete the RegistrationAssignment
   azure_rm_registrationassignment:
     scope: subscriptions/{{ subscription_id }}
-    registration_assignment_id:  "{{ output2.state.name }}"
+    registration_assignment_id: "{{ output2.state.name }}"
     state: absent

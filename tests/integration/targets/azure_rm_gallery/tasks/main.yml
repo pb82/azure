@@ -1,48 +1,51 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+  run_once: true
 
 - name: Create virtual network
   azure_rm_virtualnetwork:
     resource_group: "{{ resource_group }}"
-    name: "testVnet{{ rpfx }}"
-    address_prefixes: "10.0.0.0/16"
+    name: testVnet{{ rpfx }}
+    address_prefixes: 10.0.0.0/16
 
 - name: Add subnet
   azure_rm_subnet:
     resource_group: "{{ resource_group }}"
-    name: "testSubnet{{ rpfx }}"
-    address_prefix: "10.0.1.0/24"
-    virtual_network: "testVnet{{ rpfx }}"
+    name: testSubnet{{ rpfx }}
+    address_prefix: 10.0.1.0/24
+    virtual_network: testVnet{{ rpfx }}
 
 - name: Create public IP address
   azure_rm_publicipaddress:
     resource_group: "{{ resource_group }}"
     allocation_method: Static
-    name: "testPublicIP{{ rpfx }}"
+    name: testPublicIP{{ rpfx }}
 
 - name: Create virtual network inteface cards for VM A and B
   azure_rm_networkinterface:
     resource_group: "{{ resource_group }}"
-    name: "vmforimage{{ rpfx }}nic"
-    virtual_network: "testVnet{{ rpfx }}"
-    subnet: "testSubnet{{ rpfx }}"
+    name: vmforimage{{ rpfx }}nic
+    virtual_network: testVnet{{ rpfx }}
+    subnet: testSubnet{{ rpfx }}
 
 - name: Create VM
   azure_rm_virtualmachine:
     resource_group: "{{ resource_group }}"
-    name: "vmforimage{{ rpfx }}"
+    name: vmforimage{{ rpfx }}
     location: eastus
     admin_username: testuser
     ssh_password_enabled: false
     ssh_public_keys:
       - path: /home/testuser/.ssh/authorized_keys
-        key_data: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfoYlIV4lTPZTv7hXaVwQQuqBgGs4yeNRX0SPo2+HQt9u4X7IGwrtXc0nEUm6LfaCikMH58bOL8f20NTGz285kxdFHZRcBXtqmnMz2rXwhK9gwq5h1khc+GzHtdcJXsGA4y0xuaNcidcg04jxAlN/06fwb/VYwwWTVbypNC0gpGEpWckCNm8vlDlA55sU5et0SZ+J0RKVvEaweUOeNbFZqckGPA384imfeYlADppK/7eAxqfBVadVvZG8IJk4yvATgaIENIFj2cXxqu2mQ/Bp5Wr45uApvJsFXmi+v/nkiOEV1QpLOnEwAZo6EfFS4CCQtsymxJCl1PxdJ5LD4ZOtP xiuxi.sun@qq.com"
+        key_data: ssh-rsa 
+          AAAAB3NzaC1yc2EAAAADAQABAAABAQDfoYlIV4lTPZTv7hXaVwQQuqBgGs4yeNRX0SPo2+HQt9u4X7IGwrtXc0nEUm6LfaCikMH58bOL8f20NTGz285kxdFHZRcBXtqmnMz2rXwhK9gwq5h1khc+GzHtdcJXsGA4y0xuaNcidcg04jxAlN/06fwb/VYwwWTVbypNC0gpGEpWckCNm8vlDlA55sU5et0SZ+J0RKVvEaweUOeNbFZqckGPA384imfeYlADppK/7eAxqfBVadVvZG8IJk4yvATgaIENIFj2cXxqu2mQ/Bp5Wr45uApvJsFXmi+v/nkiOEV1QpLOnEwAZo6EfFS4CCQtsymxJCl1PxdJ5LD4ZOtP
+          xiuxi.sun@qq.com
     vm_size: Standard_B1ms
-    network_interfaces: "vmforimage{{ rpfx }}nic"
+    network_interfaces: vmforimage{{ rpfx }}nic
     image:
-      offer: 0001-com-ubuntu-server-focal
+      offer: "0001-com-ubuntu-server-focal"
       publisher: Canonical
       sku: 20_04-lts
       version: latest
@@ -50,7 +53,7 @@
 - name: Get VM facts
   azure_rm_virtualmachine_info:
     resource_group: "{{ resource_group }}"
-    name: "vmforimage{{ rpfx }}"
+    name: vmforimage{{ rpfx }}
   register: output
 
 - name: Pause for 10 mimutes to VM updating
@@ -59,30 +62,31 @@
 - name: Create a snapshot by importing an unmanaged blob from the same subscription.
   azure_rm_snapshot:
     resource_group: "{{ resource_group }}"
-    name: "mySnapshot-{{ rpfx }}"
+    name: mySnapshot-{{ rpfx }}
     location: eastus
     creation_data:
       create_option: Import
-      source_uri: 'https://{{ output.vms[0].storage_account_name }}.blob.core.windows.net/{{ output.vms[0].storage_container_name }}/{{ output.vms[0].storage_blob_name }}'
+      source_uri: https://{{ output.vms[0].storage_account_name }}.blob.core.windows.net/{{ output.vms[0].storage_container_name }}/{{ output.vms[0].storage_blob_name
+        }}
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Create a managed disk
   azure_rm_manageddisk:
     resource_group: "{{ resource_group }}"
-    name: "disk-{{ rpfx }}"
+    name: disk-{{ rpfx }}
     disk_size_gb: 1
   register: disk_output
 
 - name: Create a snapshot with I(incremental=True)
   azure_rm_snapshot:
     resource_group: "{{ resource_group }}"
-    name: "mySnapshot-{{ rpfx }}02"
+    name: mySnapshot-{{ rpfx }}02
     location: eastus
-    incremental: True
+    incremental: true
     creation_data:
       create_option: Copy
       source_id: "{{ disk_output.state.id }}"
@@ -95,13 +99,13 @@
 - name: Generalize VM
   azure_rm_virtualmachine:
     resource_group: "{{ resource_group }}"
-    name: "vmforimage{{ rpfx }}"
-    generalized: yes
+    name: vmforimage{{ rpfx }}
+    generalized: true
 - name: Create custom image
   azure_rm_image:
     resource_group: "{{ resource_group }}"
     name: testimagea
-    source: "vmforimage{{ rpfx }}"
+    source: vmforimage{{ rpfx }}
 - name: Create or update a simple gallery.
   azure_rm_gallery:
     resource_group: "{{ resource_group }}"
@@ -111,7 +115,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Create or update a simple gallery - idempotent
@@ -123,7 +127,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
 
 - name: Create or update a simple gallery - change description
@@ -135,7 +139,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Get a gallery info.
@@ -145,7 +149,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
       - output.galleries['id'] != None
       - output.galleries['name'] != None
@@ -169,7 +173,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Create or update gallery image - idempotent
@@ -188,7 +192,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
 
 - name: Create or update gallery image - change description
@@ -207,7 +211,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Get a gallery image info.
@@ -218,7 +222,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
       - output.images['id'] != None
       - output.images['name'] != None
@@ -236,7 +240,7 @@
     location: eastus
     publishing_profile:
       end_of_life_date: "2050-10-01t00:00:00+00:00"
-      exclude_from_latest: yes
+      exclude_from_latest: true
       replica_count: 3
       storage_account_type: Standard_LRS
       target_regions:
@@ -251,7 +255,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Create or update a simple gallery Image Version - idempotent
@@ -263,7 +267,7 @@
     location: eastus
     publishing_profile:
       end_of_life_date: "2050-10-01t00:00:00+00:00"
-      exclude_from_latest: yes
+      exclude_from_latest: true
       replica_count: 3
       storage_account_type: Standard_LRS
       target_regions:
@@ -278,7 +282,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
 
 - name: Create or update a simple gallery Image Version - change end of life
@@ -290,7 +294,7 @@
     location: eastus
     publishing_profile:
       end_of_life_date: "2051-10-01t00:00:00+00:00"
-      exclude_from_latest: yes
+      exclude_from_latest: true
       replica_count: 3
       storage_account_type: Standard_LRS
       target_regions:
@@ -305,7 +309,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: Get a simple gallery Image Version info.
@@ -317,7 +321,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - not output.changed
       - output.versions['id'] != None
       - output.versions['name'] != None
@@ -335,7 +339,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: pasue 2 minutes, wait for deletion complete
@@ -351,7 +355,7 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed
 
 - name: pasue 2 minutes, wait for deletion complete
@@ -366,5 +370,5 @@
   register: output
 
 - assert:
-    that: 
+    that:
       - output.changed

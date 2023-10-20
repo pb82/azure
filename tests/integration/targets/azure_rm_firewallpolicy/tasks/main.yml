@@ -1,6 +1,7 @@
+---
 - name: Create firewall policy name
   set_fact:
-    policy_name: "fp{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    policy_name: fp{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create firewall policy
   azure_rm_firewallpolicy:
@@ -54,7 +55,7 @@
       append_fqdns: false
     state: present
     tags:
-      key1: "value1"
+      key1: value1
   register: results
 
 - name: Assert that firewall policy is updated

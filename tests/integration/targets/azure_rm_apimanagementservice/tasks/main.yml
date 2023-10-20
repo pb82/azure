@@ -1,6 +1,7 @@
+---
 - name: Fix resource prefix
   set_fact:
-    name: "myPolicy{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    name: myPolicy{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: To create API Management service
   azure_rm_apimanagementservice:

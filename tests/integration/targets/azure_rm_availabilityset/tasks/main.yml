@@ -1,3 +1,4 @@
+---
 - name: Create an availability set with default options - Check Mode
   azure_rm_availabilityset:
     name: myavailabilityset1
@@ -5,7 +6,7 @@
     tags:
       tag1: testtag
   register: results
-  check_mode: yes
+  check_mode: true
 
 - assert:
     that: results.changed
@@ -23,7 +24,7 @@
 
 - name: Create proximity placement group name
   set_fact:
-    ppgroup_name: "ppg{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    ppgroup_name: ppg{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create a proximity placement group
   azure_rm_proximityplacementgroup:
@@ -55,12 +56,12 @@
     proximity_placement_group: "{{ ppgroup_name }}"
     sku: Aligned
   register: results
-  ignore_errors: yes
+  ignore_errors: true
 
 - assert:
-    that: 
-    - not results.changed
-    - results.msg == 'You tried to change platform_update_domain_count but is was unsuccessful. An Availability Set is immutable, except tags'
+    that:
+      - not results.changed
+      - results.msg == 'You tried to change platform_update_domain_count but is was unsuccessful. An Availability Set is immutable, except tags'
 
 - name: Modify availabilty set immutable options and set tags - change tags and fail for immutable options
   azure_rm_availabilityset:
@@ -73,12 +74,12 @@
     tags:
       test1: modified
   register: results
-  ignore_errors: yes
+  ignore_errors: true
 
 - assert:
-    that: 
-    - not results.changed
-    - results.msg == 'You tried to change platform_update_domain_count but is was unsuccessful. An Availability Set is immutable, except tags'
+    that:
+      - not results.changed
+      - results.msg == 'You tried to change platform_update_domain_count but is was unsuccessful. An Availability Set is immutable, except tags'
 
 - name: Modify availabilty set options to update tags
   azure_rm_availabilityset:
@@ -104,10 +105,9 @@
     platform_fault_domain_count: 4
     sku: Aligned
   register: results
-  ignore_errors: yes
+  ignore_errors: true
 
-- assert:
-    { that: "'The specified fault domain count 4 must fall in the range 1 to' in results['msg']" }
+- assert: { that: "'The specified fault domain count 4 must fall in the range 1 to' in results['msg']" }
 
 - name: Test check_mode
   azure_rm_availabilityset:
@@ -120,11 +120,11 @@
     tags:
       checktest1: modified1
       checktest2: modified2
-  check_mode: yes
+  check_mode: true
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.checktest1 == 'modified1'
 
@@ -138,7 +138,7 @@
   register: results
 
 - assert:
-    that: 
+    that:
       - not results.changed
       - not results.failed
       - results.ansible_info.azure_availabilitysets[0].platform_fault_domain_count == 2
@@ -151,7 +151,7 @@
     name: myavailabilityset1
     resource_group: "{{ resource_group }}"
     state: absent
-  check_mode: yes
+  check_mode: true
   register: results
 - assert:
     that:
@@ -168,7 +168,7 @@
     name: myavailabilityset1
     resource_group: "{{ resource_group }}"
     state: absent
-  check_mode: yes
+  check_mode: true
   register: results
 - assert:
     that:

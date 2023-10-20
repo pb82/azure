@@ -1,20 +1,21 @@
+---
 - name: Create Random Storage Account Name
   set_fact:
-    storage_account: "vme{{ resource_group | hash('md5') | truncate(21, True, '') }}"
-    public_settings_file: "files/test-public-settings.json"
-    protected_settings_file: "files/test-protected-settings.json"
+    storage_account: vme{{ resource_group | hash('md5') | truncate(21, True, '') }}
+    public_settings_file: files/test-public-settings.json
+    protected_settings_file: files/test-protected-settings.json
 
 - name: Create virtual network
   azure_rm_virtualnetwork:
     resource_group: "{{ resource_group }}"
     name: testVnet1
-    address_prefixes: "10.0.0.0/16"
+    address_prefixes: 10.0.0.0/16
 
 - name: Add subnet
   azure_rm_subnet:
     resource_group: "{{ resource_group }}"
     name: testSubnet
-    address_prefix: "10.0.1.0/24"
+    address_prefix: 10.0.1.0/24
     virtual_network: testVnet1
 
 - name: Create public IP address
@@ -59,7 +60,9 @@
     ssh_password_enabled: false
     ssh_public_keys:
       - path: /home/testuser/.ssh/authorized_keys
-        key_data: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfoYlIV4lTPZTv7hXaVwQQuqBgGs4yeNRX0SPo2+HQt9u4X7IGwrtXc0nEUm6LfaCikMH58bOL8f20NTGz285kxdFHZRcBXtqmnMz2rXwhK9gwq5h1khc+GzHtdcJXsGA4y0xuaNcidcg04jxAlN/06fwb/VYwwWTVbypNC0gpGEpWckCNm8vlDlA55sU5et0SZ+J0RKVvEaweUOeNbFZqckGPA384imfeYlADppK/7eAxqfBVadVvZG8IJk4yvATgaIENIFj2cXxqu2mQ/Bp5Wr45uApvJsFXmi+v/nkiOEV1QpLOnEwAZo6EfFS4CCQtsymxJCl1PxdJ5LD4ZOtP xiuxi.sun@qq.com"
+        key_data: ssh-rsa 
+          AAAAB3NzaC1yc2EAAAADAQABAAABAQDfoYlIV4lTPZTv7hXaVwQQuqBgGs4yeNRX0SPo2+HQt9u4X7IGwrtXc0nEUm6LfaCikMH58bOL8f20NTGz285kxdFHZRcBXtqmnMz2rXwhK9gwq5h1khc+GzHtdcJXsGA4y0xuaNcidcg04jxAlN/06fwb/VYwwWTVbypNC0gpGEpWckCNm8vlDlA55sU5et0SZ+J0RKVvEaweUOeNbFZqckGPA384imfeYlADppK/7eAxqfBVadVvZG8IJk4yvATgaIENIFj2cXxqu2mQ/Bp5Wr45uApvJsFXmi+v/nkiOEV1QpLOnEwAZo6EfFS4CCQtsymxJCl1PxdJ5LD4ZOtP
+          xiuxi.sun@qq.com
     network_interfaces: testNIC
     managed_disk_type: StandardSSD_LRS
     storage_account_name: "{{ storage_account }}"
@@ -67,7 +70,7 @@
     storage_blob: osdisk.vhd
     os_disk_caching: ReadWrite
     image:
-      offer: 0001-com-ubuntu-server-focal
+      offer: "0001-com-ubuntu-server-focal"
       publisher: canonical
       sku: 20_04-lts
       version: latest
@@ -81,7 +84,7 @@
     virtual_machine_extension_type: CustomScript
     type_handler_version: 2.0
     auto_upgrade_minor_version: true
-    settings: {"commandToExecute": "date"}
+    settings: { commandToExecute: date }
   register: results
 - name: Assert that VM Extension ran
   assert:
@@ -117,7 +120,7 @@
     virtual_machine_extension_type: CustomScript
     type_handler_version: 2.0
     auto_upgrade_minor_version: true
-    settings: {"commandToExecute": "date"}
+    settings: { commandToExecute: date }
   register: results
 - name: Assert no updates
   assert:
@@ -132,7 +135,7 @@
     virtual_machine_extension_type: CustomScript
     type_handler_version: 2.0
     auto_upgrade_minor_version: true
-    settings: {"commandToExecute": "date"}
+    settings: { commandToExecute: date }
     force_update_tag: true
   register: results
 - name: Assert updates
@@ -190,7 +193,7 @@
     virtual_machine_extension_type: CustomScript
     type_handler_version: 2.0
     auto_upgrade_minor_version: true
-    settings: {"commandToExecute": "apt-get update && apt-get install -y python2 && update-alternatives --install /usr/bin/python python /usr/bin/python2 1"}
+    settings: { commandToExecute: apt-get update && apt-get install -y python2 && update-alternatives --install /usr/bin/python python /usr/bin/python2 1 }
   register: results
 - name: Assert that VM Extension ran
   assert:
@@ -199,10 +202,10 @@
 - name: Install VM Extension for diagnostics
   azure_rm_virtualmachineextension:
     resource_group: "{{ resource_group }}"
-    name: "linux-diagnostics"
+    name: linux-diagnostics
     virtual_machine_name: testVM
-    publisher: "Microsoft.Azure.Diagnostics"
-    virtual_machine_extension_type: "LinuxDiagnostic"
+    publisher: Microsoft.Azure.Diagnostics
+    virtual_machine_extension_type: LinuxDiagnostic
     type_handler_version: "4.0"
     auto_upgrade_minor_version: true
     settings: "{{ lookup('file', public_settings_file) }}"
@@ -215,10 +218,10 @@
 - name: Install VM Extension for diagnostics (idempotent)
   azure_rm_virtualmachineextension:
     resource_group: "{{ resource_group }}"
-    name: "linux-diagnostics"
+    name: linux-diagnostics
     virtual_machine_name: testVM
-    publisher: "Microsoft.Azure.Diagnostics"
-    virtual_machine_extension_type: "LinuxDiagnostic"
+    publisher: Microsoft.Azure.Diagnostics
+    virtual_machine_extension_type: LinuxDiagnostic
     type_handler_version: "4.0"
     auto_upgrade_minor_version: true
     settings: "{{ lookup('file', public_settings_file) }}"
@@ -246,7 +249,7 @@
     resource_group: "{{ resource_group }}"
     name: testVM
     state: absent
-    remove_on_absent: ['all']
+    remove_on_absent: [all]
 
 - name: Delete a storage account
   azure_rm_storageaccount:
@@ -267,4 +270,4 @@
     resource_group: "{{ resource_group }}"
     name: testVnet1
     state: absent
-    address_prefixes: "10.0.0.0/16"
+    address_prefixes: 10.0.0.0/16

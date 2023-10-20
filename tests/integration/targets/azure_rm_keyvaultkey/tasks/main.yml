@@ -1,29 +1,27 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
     tenant_id: "{{ azure_tenant }}"
-  run_once: yes
+  run_once: true
 
 - name: lookup service principal object id
   set_fact:
-    object_id: "{{ lookup('azure_service_principal_attribute',
-                   azure_client_id=azure_client_id,
-                   azure_secret=azure_secret,
-                   azure_tenant=tenant_id) }}"
+    object_id: "{{ lookup('azure_service_principal_attribute', azure_client_id=azure_client_id, azure_secret=azure_secret, azure_tenant=tenant_id) }}"
   register: object_id_facts
 
 - name: Create instance of Key Vault
   azure_rm_keyvault:
     resource_group: "{{ resource_group }}"
-    vault_name: "vault{{ rpfx }}"
-    enabled_for_deployment: yes
+    vault_name: vault{{ rpfx }}
+    enabled_for_deployment: true
     vault_tenant: "{{ tenant_id }}"
     sku:
       name: standard
       family: A
     access_policies:
       - tenant_id: "{{ tenant_id }}"
-        object_id: '{{ object_id }}'
+        object_id: "{{ object_id }}"
         keys:
           - get
           - list
@@ -156,7 +154,7 @@
         key_name: testkeyattribute
         key_attributes:
           enabled: true
-          not_before: '2032-12-01T00:00:00Z'
+          not_before: "2032-12-01T00:00:00Z"
         tags:
           testing: test
           delete: on-exit
@@ -182,5 +180,5 @@
 - name: Delete instance of Key Vault
   azure_rm_keyvault:
     resource_group: "{{ resource_group }}"
-    vault_name: "vault{{ rpfx }}"
+    vault_name: vault{{ rpfx }}
     state: absent

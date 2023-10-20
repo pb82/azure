@@ -1,3 +1,4 @@
+---
 - name: Create random domain name
   set_fact:
     domain_name: "{{ resource_group | hash('md5') | truncate(16, True, '') + (65535 | random | string) }}"
@@ -7,7 +8,7 @@
     resource_group: "{{ resource_group }}"
     name: "{{ domain_name }}.com"
   register: results
-  check_mode: yes
+  check_mode: true
 
 - assert:
     that: results.changed
@@ -30,7 +31,7 @@
   register: results
 
 - assert:
-    that: 
+    that:
       - results.changed
       - results.state.tags.test == 'modified'
 
@@ -42,7 +43,7 @@
 
 - name: Assert that facts module returned result
   assert:
-    that: 
+    that:
       - zones.dnszones[0].tags.test == 'modified'
       - zones.dnszones[0].type == 'public'
 
@@ -75,8 +76,8 @@
 - name: Assert that A record set was created
   assert:
     that:
-        - results.changed
-        - 'results.state.a_records | length == 3'
+      - results.changed
+      - results.state.a_records | length == 3
 
 - name: re-run "A" record with same values
   azure_rm_dnsrecordset:
@@ -107,9 +108,9 @@
 
 - name: Assert that new record was appended
   assert:
-    that: 
+    that:
       - results.changed
-      - 'results.state.a_records | length == 4'
+      - results.state.a_records | length == 4
 
 - name: re-update "A" record set with additional record
   azure_rm_dnsrecordset:
@@ -143,7 +144,7 @@
   assert:
     that:
       - results.changed
-      - 'results.state.a_records | length == 3'      
+      - results.state.a_records | length == 3
 
 - name: Check_mode test
   azure_rm_dnsrecordset:
@@ -153,12 +154,12 @@
     record_type: A
     records:
       - entry: 192.168.100.105
-  check_mode: yes
+  check_mode: true
   register: results
 
 - name: Assert that check_mode returns new state
   assert:
-    that: 
+    that:
       - results.changed
 
 # FUTURE: add facts module calls to ensure that we really didn't touch anything
@@ -166,34 +167,34 @@
 - name: create SRV records in a new record set
   azure_rm_dnsrecordset:
     resource_group: "{{ resource_group }}"
-    relative_name: "_sip._tcp.{{ domain_name }}.com"
+    relative_name: _sip._tcp.{{ domain_name }}.com
     zone_name: "{{ domain_name }}.com"
     time_to_live: 7200
     record_type: SRV
     records:
-    - entry: sip.{{ domain_name }}.com
-      priority: 20
-      weight: 10
-      port: 5060
+      - entry: sip.{{ domain_name }}.com
+        priority: 20
+        weight: 10
+        port: 5060
   register: results
 
 - name: Assert that SRV record set was created
   assert:
-    that: 
+    that:
       - results.changed
 
 - name: create TXT records in a new record set
   azure_rm_dnsrecordset:
     resource_group: "{{ resource_group }}"
-    relative_name: "_txt.{{ domain_name }}.com"
+    relative_name: _txt.{{ domain_name }}.com
     zone_name: "{{ domain_name }}.com"
     record_type: TXT
     records:
-      - entry: "v=spf1 a -all"
-      - entry: "foo"
+      - entry: v=spf1 a -all
+      - entry: foo
       - entry:
-          - "bar"
-          - "baz"
+          - bar
+          - baz
   register: results
 
 - name: Assert that TXT record set was created
@@ -215,11 +216,11 @@
 
 - name: Assert that facts module returned result for single Record Set
   assert:
-    that: 
+    that:
       - not results.changed
-#     - azure_dnsrecordset[0].name == 'www'
+      #     - azure_dnsrecordset[0].name == 'www'
       - results.dnsrecordsets[0].relative_name == 'www'
-      - 'results.dnsrecordsets[0].records | length == 3'
+      - results.dnsrecordsets[0].records | length == 3
       - results.dnsrecordsets[0].record_type == 'A'
 
 - name: Retrieve DNS Record Set Facts for all Record Sets
@@ -230,7 +231,7 @@
 
 - name: Assert that facts module returned result for all Record Sets
   assert:
-    that: 
+    that:
       - not facts.changed
 #     - facts.ansible_facts.azure_dnsrecordset[0].name == '@'
 #     - facts.ansible_facts.azure_dnsrecordset[1].name == '@'
@@ -264,7 +265,7 @@
 - name: Assert all record set deleted
   assert:
     that:
-       - item.relative_name == '@'
+      - item.relative_name == '@'
   with_items: "{{ facts.dnsrecordsets }}"
 
 - name: (idempotence test) re-run record set absent
@@ -286,7 +287,7 @@
 - name: Delete DNS zone
   azure_rm_dnszone:
     resource_group: "{{ resource_group }}"
-    name:  "{{ domain_name }}.com"
+    name: "{{ domain_name }}.com"
     state: absent
 
 - name: Delete DNS zone (idempotent)

@@ -1,7 +1,8 @@
+---
 - set_fact:
     tenant_id: "{{ azure_tenant }}"
-    display_name: "app{{ resource_group | hash('sha1') | truncate(20, True, '') }}"
-  run_once: yes
+    display_name: app{{ resource_group | hash('sha1') | truncate(20, True, '') }}
+  run_once: true
 
 - name: Create application
   azure_rm_adapplication:
@@ -25,8 +26,8 @@
   azure_rm_adapplication:
     tenant: "{{ tenant_id }}"
     display_name: "{{ display_name }}-01"
-    available_to_other_tenants: False
-    credential_description: "for test"
+    available_to_other_tenants: false
+    credential_description: for test
     end_date: 2021-10-01
     start_date: 2021-05-18
     identifier_uris:
@@ -34,9 +35,9 @@
     app_roles:
       - allowed_member_types:
           - User
-        description: "for app role test"
+        description: for app role test
         display_name: "{{ display_name }}_approle"
-        is_enabled: True
+        is_enabled: true
         value: Password@0329
   register: second_output
 

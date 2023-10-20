@@ -1,10 +1,11 @@
+---
 - name: Prepare random number
   set_fact:
-    secgroupname: "sg{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-    asg_name1: "asg1{{ resource_group | hash('md5') | truncate(7, True, '') }}"
-    asg_name2: "asg2{{ resource_group | hash('md5') | truncate(7, True, '') }}"
-    sg_name1: "sgasg{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-  run_once: yes
+    secgroupname: sg{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}
+    asg_name1: asg1{{ resource_group | hash('md5') | truncate(7, True, '') }}
+    asg_name2: asg2{{ resource_group | hash('md5') | truncate(7, True, '') }}
+    sg_name1: sgasg{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}
+  run_once: true
 
 - name: Create security group
   azure_rm_securitygroup:
@@ -15,7 +16,7 @@
       delete: on-exit
       foo: bar
       testkey: testvalue
-    purge_rules: yes
+    purge_rules: true
     rules:
       - name: DenySSH
         protocol: Tcp
@@ -181,7 +182,7 @@
       testing: testing
       delete: on-exit
       foo: bar
-    purge_rules: yes
+    purge_rules: true
     rules:
       - name: AllowSSH
         protocol: Tcp
@@ -209,7 +210,7 @@
       testing: testing
       delete: on-exit
       foo: bar
-    purge_rules: yes
+    purge_rules: true
     rules:
       - name: AllowSSH
         protocol: Tcp
@@ -264,7 +265,7 @@
         securityRules:
           - name: Upper_Protocal
             properties:
-              protocol: TCP  # UPPERCASE
+              protocol: TCP # UPPERCASE
               access: Allow
               sourceAddressPrefix: "*"
               sourcePortRange: "*"
@@ -279,7 +280,7 @@
     name: "{{ secgroupname }}"
     rules:
       - name: Upper_Protocal
-        protocol: Tcp     # Capitalized
+        protocol: Tcp # Capitalized
         access: Allow
         destination_port_range: 80
         priority: 100
@@ -310,7 +311,7 @@
   azure_rm_securitygroup:
     resource_group: "{{ resource_group }}"
     name: "{{ sg_name1 }}"
-    purge_rules: yes
+    purge_rules: true
     rules:
       - name: AsgToAsg
         protocol: Tcp
@@ -333,7 +334,7 @@
   azure_rm_securitygroup:
     resource_group: "{{ resource_group }}"
     name: "{{ sg_name1 }}"
-    purge_rules: yes
+    purge_rules: true
     rules:
       - name: AsgToAsg
         protocol: Tcp

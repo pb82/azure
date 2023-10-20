@@ -1,9 +1,11 @@
+---
 - name: Fix resource prefix
   set_fact:
-    resource_group: 'MyResourceGroup'
-    recovery_vault_name: 'MyRecoveryVault'
-    resource_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.Compute/virtualMachines/MyVM"
-    backup_policy_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/microsoft.recoveryservices/vaults/testVault/backupPolicies/DefaultPolicy"
+    resource_group: MyResourceGroup
+    recovery_vault_name: MyRecoveryVault
+    resource_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.Compute/virtualMachines/MyVM
+    backup_policy_id: 
+      /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/microsoft.recoveryservices/vaults/testVault/backupPolicies/DefaultPolicy
 
 - name: Enabling/Updating protection for the Azure VM
   azure_rm_backupazurevm:
@@ -11,7 +13,7 @@
     recovery_vault_name: "{{ recovery_vault_name }}"
     resource_id: "{{ resource_id }}"
     backup_policy_id: "{{ backup_policy_id }}"
-    state: "create"
+    state: create
   register: output
 
 - name: Assert that output has changed
@@ -26,21 +28,21 @@
     resource_id: "{{ resource_id }}"
     backup_policy_id: "{{ backup_policy_id }}"
     recovery_point_expiry_time: "2025-02-03T05:00:00Z"
-    state: "backup"
+    state: backup
   register: output
 
 - name: Assert that output has changed
   assert:
     that:
       - output.changed
-      
+
 - name: Stop protection but retain existing data
   azure_rm_backupazurevm:
     resource_group: "{{ resource_group }}"
     recovery_vault_name: "{{ recovery_vault_name }}"
     resource_id: "{{ resource_id }}"
     backup_policy_id: "{{ backup_policy_id }}"
-    state: "stop"
+    state: stop
   register: output
 
 - name: Assert that output has changed
@@ -67,9 +69,9 @@
     recovery_vault_name: "{{ recovery_vault_name }}"
     resource_id: "{{ resource_id }}"
     backup_policy_id: "{{ backup_policy_id }}"
-    state: "delete"
+    state: delete
   register: output
-  
+
 - name: Assert that output has changed
   assert:
     that:

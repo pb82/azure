@@ -1,6 +1,7 @@
+---
 - name: Create IP group name
   set_fact:
-    group_name: "ipgroup{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    group_name: ipgroup{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create IP group (check mode)
   azure_rm_ipgroup:
@@ -12,9 +13,9 @@
       - 40.74.146.80/31
       - 40.74.147.32/28
     tags:
-      key1: "value1"
+      key1: value1
     state: present
-  check_mode: yes
+  check_mode: true
 
 - name: Create IP group
   azure_rm_ipgroup:
@@ -26,7 +27,7 @@
       - 40.74.146.80/31
       - 40.74.147.32/28
     tags:
-      key1: "value1"
+      key1: value1
     state: present
   register: results
 
@@ -44,7 +45,7 @@
       - 40.74.146.80/31
       - 40.74.147.32/28
     tags:
-      key1: "value1"
+      key1: value1
     state: present
   register: results
 
@@ -60,7 +61,7 @@
     ip_addresses:
       - 10.0.0.0/24
     tags:
-      key2: "value2"
+      key2: value2
   register: results
 
 - name: Assert that IP group is updated

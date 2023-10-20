@@ -1,16 +1,17 @@
+---
 - name: Set Facts for Tests
   set_fact:
-    vault_name: "rsv{{ resource_group | hash('md5') | truncate(22, True, '') }}"
-    location: "eastus"
-    policy_name_daily: "bp-daily-policy-{{ resource_group | hash('md5') | truncate(22, True, '') }}"
-    policy_name_weekly: "bp-weekly-policy-{{ resource_group | hash('md5') | truncate(22, True, '') }}"
+    vault_name: rsv{{ resource_group | hash('md5') | truncate(22, True, '') }}
+    location: eastus
+    policy_name_daily: bp-daily-policy-{{ resource_group | hash('md5') | truncate(22, True, '') }}
+    policy_name_weekly: bp-weekly-policy-{{ resource_group | hash('md5') | truncate(22, True, '') }}
 
 - name: Create Azure Recovery Service vault
   azure_rm_recoveryservicesvault:
     resource_group: "{{ resource_group }}"
     name: "{{ vault_name }}"
     location: "{{ location }}"
-    state: "present"
+    state: present
 
 - name: Create a daily VM backup policy
   azure_rm_backuppolicy:
@@ -18,11 +19,11 @@
     name: "{{ policy_name_daily }}"
     resource_group: "{{ resource_group }}"
     state: present
-    backup_management_type: "AzureIaasVM"
-    schedule_run_frequency: "Daily"
+    backup_management_type: AzureIaasVM
+    schedule_run_frequency: Daily
     instant_recovery_snapshot_retention: 2
     daily_retention_count: 12
-    time_zone: "Pacific Standard Time"
+    time_zone: Pacific Standard Time
     schedule_run_time: 14
   register: daily_policy_output
 
@@ -53,11 +54,11 @@
     name: "{{ policy_name_daily }}"
     resource_group: "{{ resource_group }}"
     state: present
-    backup_management_type: "AzureIaasVM"
-    schedule_run_frequency: "Daily"
+    backup_management_type: AzureIaasVM
+    schedule_run_frequency: Daily
     instant_recovery_snapshot_retention: 5
     daily_retention_count: 10
-    time_zone: "Pacific Standard Time"
+    time_zone: Pacific Standard Time
     schedule_run_time: 10
   register: daily_policy_output_update
 
@@ -73,15 +74,15 @@
     name: "{{ policy_name_weekly }}"
     resource_group: "{{ resource_group }}"
     state: present
-    backup_management_type: "AzureIaasVM"
-    schedule_run_frequency: "Weekly"
+    backup_management_type: AzureIaasVM
+    schedule_run_frequency: Weekly
     instant_recovery_snapshot_retention: 5
     weekly_retention_count: 4
     schedule_days:
-      - "Monday"
-      - "Wednesday"
-      - "Friday"
-    time_zone: "Pacific Standard Time"
+      - Monday
+      - Wednesday
+      - Friday
+    time_zone: Pacific Standard Time
     schedule_run_time: 8
   register: weekly_policy_output
 
@@ -97,15 +98,15 @@
     name: "{{ policy_name_weekly }}"
     resource_group: "{{ resource_group }}"
     state: present
-    backup_management_type: "AzureIaasVM"
-    schedule_run_frequency: "Weekly"
+    backup_management_type: AzureIaasVM
+    schedule_run_frequency: Weekly
     instant_recovery_snapshot_retention: 5
     weekly_retention_count: 4
     schedule_days:
-      - "Monday"
-      - "Wednesday"
-      - "Thursday"
-    time_zone: "Pacific Standard Time"
+      - Monday
+      - Wednesday
+      - Thursday
+    time_zone: Pacific Standard Time
     schedule_run_time: 10
   register: weekly_policy_output_update
 

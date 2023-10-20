@@ -1,8 +1,9 @@
+---
 - name: Prepare random number
   set_fact:
-    vnetname1: "vnet1{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-    vnetname2: "vnet2{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
-    peering_name: "peering1{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 100 | random }}"
+    vnetname1: vnet1{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}
+    vnetname2: vnet2{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}
+    peering_name: peering1{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 100 | random }}
 
 - name: Create first virtual network
   azure_rm_virtualnetwork:
@@ -38,7 +39,7 @@
       name: "{{ vnetname2 }}"
     allow_virtual_network_access: false
     allow_forwarded_traffic: true
-  check_mode: yes
+  check_mode: true
   register: output
 
 - assert:

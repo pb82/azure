@@ -1,3 +1,4 @@
+---
 - name: Prepare random number
   set_fact:
     rpfx: "{{ resource_group | hash('md5') | truncate(7, True, '') }}{{ 1000 | random }}"
@@ -30,7 +31,7 @@
     resource_group: "{{ resource_group }}"
     name: nat-gateway{{ rpfx }}1
   register: output
-  check_mode: yes
+  check_mode: true
 - name: Assert the resource instance is well created
   assert:
     that:
@@ -113,22 +114,22 @@
 
 - name: Create public IP for NAT Gateway
   azure_rm_publicipaddress:
-    name: "nat-gateway{{ rpfx }}-pip1"
+    name: nat-gateway{{ rpfx }}-pip1
     resource_group: "{{ resource_group }}"
-    sku: "standard"
-    allocation_method: "static"
+    sku: standard
+    allocation_method: static
 - name: Get public IP for NAT Gateway
   azure_rm_publicipaddress_info:
-    name: "nat-gateway{{ rpfx }}-pip1"
+    name: nat-gateway{{ rpfx }}-pip1
     resource_group: "{{ resource_group }}"
   register: pip_info_output
 
 - name: Create second public IP for NAT Gateway
   azure_rm_publicipaddress:
-    name: "nat-gateway{{ rpfx }}-pip2"
+    name: nat-gateway{{ rpfx }}-pip2
     resource_group: "{{ resource_group }}"
-    sku: "standard"
-    allocation_method: "static"
+    sku: standard
+    allocation_method: static
 
 - name: Try to update instance of NAT Gateway - add public IPs
   azure_rm_natgateway:
@@ -139,7 +140,7 @@
       name: standard
     public_ip_addresses:
       - "{{ pip_info_output.publicipaddresses[0].id }}"
-      - "nat-gateway{{ rpfx }}-pip2"
+      - nat-gateway{{ rpfx }}-pip2
   register: natgw_output
 - name: Assert the resource instance is changed
   assert:
@@ -163,7 +164,7 @@
     sku:
       name: standard
     public_ip_addresses:
-      - "nat-gateway{{ rpfx }}-pip2"
+      - nat-gateway{{ rpfx }}-pip2
   register: natgw_output
 - name: Assert the resource instance is changed
   assert:
@@ -204,7 +205,7 @@
 
 - name: Create virtual network
   azure_rm_virtualnetwork:
-    name: "vnet{{ rpfx }}"
+    name: vnet{{ rpfx }}
     address_prefixes_cidr:
       - 10.1.0.0/16
       - 172.100.0.0/16
@@ -219,15 +220,15 @@
 
 - name: Create the subnet
   azure_rm_subnet:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
-    address_prefix_cidr: "10.1.0.0/24"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
+    address_prefix_cidr: 10.1.0.0/24
     nat_gateway: "{{ natgw_output.gateways[0].id }}"
     resource_group: "{{ resource_group }}"
 - name: Get the subnet facts
   azure_rm_subnet_info:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert the NAT Gateway is associated
@@ -242,15 +243,15 @@
   register: natgw_output3
 - name: Update the subnet - Update associated NAT Gateway
   azure_rm_subnet:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
-    address_prefix_cidr: "10.1.0.0/24"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
+    address_prefix_cidr: 10.1.0.0/24
     resource_group: "{{ resource_group }}"
     nat_gateway: nat-gateway{{ rpfx }}3
 - name: Get the subnet facts
   azure_rm_subnet_info:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert the NAT Gateway is not associated
@@ -260,14 +261,14 @@
 
 - name: Update the subnet - Disassociate NAT Gateway
   azure_rm_subnet:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
-    address_prefix_cidr: "10.1.0.0/24"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
+    address_prefix_cidr: 10.1.0.0/24
     resource_group: "{{ resource_group }}"
 - name: Get the subnet facts
   azure_rm_subnet_info:
-    name: "subnet{{ rpfx }}"
-    virtual_network_name: "vnet{{ rpfx }}"
+    name: subnet{{ rpfx }}
+    virtual_network_name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
   register: output
 - name: Assert the NAT Gateway is not associated
@@ -282,7 +283,7 @@
     name: nat-gateway{{ rpfx }}2
     idle_timeout_in_minutes: 10
     location: eastus
-    zones: [ 1 ]
+    zones: [1]
     sku:
       name: standard
   register: natgw_output
@@ -310,9 +311,9 @@
     state: absent
   register: output
   with_items:
-       - 1
-       - 2
-       - 3
+    - 1
+    - 2
+    - 3
 
 - name: Remove subnet
   azure_rm_subnet:
@@ -323,7 +324,7 @@
 
 - name: Remove virtual network
   azure_rm_virtualnetwork:
-    name: "vnet{{ rpfx }}"
+    name: vnet{{ rpfx }}
     resource_group: "{{ resource_group }}"
     state: absent
 
@@ -338,9 +339,9 @@
 
 - name: Delete public IPs for NAT Gateway
   azure_rm_publicipaddress:
-       resource_group: "{{ resource_group }}"
-       name: "nat-gateway{{ rpfx }}-pip{{ item }}"
-       state: absent
+    resource_group: "{{ resource_group }}"
+    name: nat-gateway{{ rpfx }}-pip{{ item }}
+    state: absent
   with_items:
-       - 1
-       - 2
+    - 1
+    - 2

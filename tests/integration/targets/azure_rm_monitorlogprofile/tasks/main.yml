@@ -1,13 +1,14 @@
+---
 - name: Prepare random number
   set_fact:
-    storage_name: "storage{{ resource_group | hash('md5') | truncate(5, True, '') }}{{ 1000 | random }}"
-    profile_name: "profile{{ resource_group | hash('md5') | truncate(5, True, '') }}{{ 1000 | random }}"
+    storage_name: storage{{ resource_group | hash('md5') | truncate(5, True, '') }}{{ 1000 | random }}
+    profile_name: profile{{ resource_group | hash('md5') | truncate(5, True, '') }}{{ 1000 | random }}
     location: eastus
-  run_once: yes
+  run_once: true
 
 - name: create Azure storage account
   azure_rm_storageaccount:
-    name: '{{ storage_name }}'
+    name: "{{ storage_name }}"
     resource_group: "{{ resource_group }}"
     account_type: Standard_LRS
 
@@ -22,12 +23,12 @@
       - Write
       - Action
     retention_policy:
-      enabled: False
+      enabled: false
       days: 1
     storage_account:
       resource_group: "{{ resource_group }}"
       name: "{{ storage_name }}"
-  check_mode: yes
+  check_mode: true
   register: output
 
 - name: assert create check mode
@@ -46,7 +47,7 @@
       - Write
       - Action
     retention_policy:
-      enabled: False
+      enabled: false
       days: 1
     storage_account:
       resource_group: "{{ resource_group }}"
@@ -69,7 +70,7 @@
       - Write
       - Action
     retention_policy:
-      enabled: False
+      enabled: false
       days: 1
     storage_account:
       resource_group: "{{ resource_group }}"
@@ -90,7 +91,7 @@
       - Write
       - Action
     retention_policy:
-      enabled: False
+      enabled: false
       days: 2
     storage_account:
       resource_group: "{{ resource_group }}"

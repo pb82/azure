@@ -1,9 +1,9 @@
 ---
 - hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
-    template_name: "../templates/{{ template | default('basic.yml') }}"
+    template_name: ../templates/{{ template | default('basic.yml') }}
   tasks:
     - name: write inventory config file
       copy:

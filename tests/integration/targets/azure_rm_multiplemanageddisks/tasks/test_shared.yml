@@ -1,17 +1,18 @@
+---
 # Create managed disks with missing required parameters
 - name: Create managed disks with missing required parameters
   azure.azcollection.azure_rm_multiplemanageddisks:
     managed_disks:
       - resource_group: "{{ resource_group_secondary }}"
-        name: "disk-copy-without-source-uri"
+        name: disk-copy-without-source-uri
         create_option: copy
         max_shares: 3
       - resource_group: "{{ resource_group_secondary }}"
-        name: "disk-import-without-storage-account"
+        name: disk-import-without-storage-account
         create_option: import
         max_shares: 3
       - resource_group: "{{ resource_group_secondary }}"
-        name: "disk-empty-without-disk-size"
+        name: disk-empty-without-disk-size
         create_option: empty
         max_shares: 3
   register: result
@@ -21,10 +22,13 @@
   assert:
     that:
       - result is failed
-      - 'result.msg == "Some required options are missing from managed disks configuration."'
-      - '"managed disk {{ resource_group_secondary }}/disk-copy-without-source-uri has create_option set to copy but not all required parameters (source_uri) are set." in result.errors'
-      - '"managed disk {{ resource_group_secondary }}/disk-import-without-storage-account has create_option set to import but not all required parameters (source_uri,storage_account_id) are set." in result.errors'
-      - '"managed disk {{ resource_group_secondary }}/disk-empty-without-disk-size has create_option set to empty but not all required parameters (disk_size_gb) are set." in result.errors'
+      - result.msg == "Some required options are missing from managed disks configuration."
+      - '"managed disk {{ resource_group_secondary }}/disk-copy-without-source-uri has create_option set to copy but not all required parameters (source_uri) are
+        set." in result.errors'
+      - '"managed disk {{ resource_group_secondary }}/disk-import-without-storage-account has create_option set to import but not all required parameters (source_uri,storage_account_id)
+        are set." in result.errors'
+      - '"managed disk {{ resource_group_secondary }}/disk-empty-without-disk-size has create_option set to empty but not all required parameters (disk_size_gb) are
+        set." in result.errors'
 
 # Test managed disks creation
 - name: Create managed disks
@@ -61,39 +65,40 @@
       - item.name in disk_names
   with_items: "{{ shared_disks }}"
   vars:
-    disk_names: "{{ azure_disks_info.results | map(attribute='ansible_info') | list | map(attribute='azure_managed_disk') | flatten | map(attribute='name') | list }}"
+    disk_names: "{{ azure_disks_info.results | map(attribute='ansible_info') | list | map(attribute='azure_managed_disk') | flatten | map(attribute='name') | list
+      }}"
 
 # setup: create virtual machines to attach disks on
 - name: Create virtual network
   azure_rm_virtualnetwork:
     resource_group: "{{ resource_group_secondary }}"
-    name: "vnet-{{ item.name }}"
+    name: vnet-{{ item.name }}
     address_prefixes: "{{ shared_virtual_network_cidr }}"
   with_items: "{{ shared_virtual_machines }}"
 
 - name: Add subnet
   azure_rm_subnet:
     resource_group: "{{ resource_group_secondary }}"
-    name: "sub-{{ item.name }}"
+    name: sub-{{ item.name }}
     address_prefix: "{{ shared_subnet_cidr }}"
-    virtual_network: "vnet-{{ item.name }}"
+    virtual_network: vnet-{{ item.name }}
   with_items: "{{ shared_virtual_machines }}"
 
 - name: Create virtual machines
   azure_rm_virtualmachine:
-      resource_group: "{{ item.resource_group }}"
-      name: "{{ item.name }}"
-      vm_size: Standard_E2_v3
-      virtual_network: "vnet-{{ item.name }}"
-      managed_disk_type: Standard_LRS
-      admin_username: adminuser
-      admin_password: "!test123@"
-      os_type: Linux
-      image:
-        offer: 0001-com-ubuntu-server-focal
-        publisher: Canonical
-        sku: 20_04-lts
-        version: latest
+    resource_group: "{{ item.resource_group }}"
+    name: "{{ item.name }}"
+    vm_size: Standard_E2_v3
+    virtual_network: vnet-{{ item.name }}
+    managed_disk_type: Standard_LRS
+    admin_username: adminuser
+    admin_password: "!test123@"
+    os_type: Linux
+    image:
+      offer: "0001-com-ubuntu-server-focal"
+      publisher: Canonical
+      sku: 20_04-lts
+      version: latest
   with_items: "{{ shared_virtual_machines }}"
   register: create_vms
   async: 1000
@@ -169,7 +174,7 @@
   azure.azcollection.azure_rm_multiplemanageddisks:
     managed_disks:
       - "{{ shared_disks[0] }}"
-    managed_by_extended: 
+    managed_by_extended:
       - "{{ shared_virtual_machines[0] }}"
     state: absent
   register: detach_disks
@@ -204,7 +209,7 @@
   azure.azcollection.azure_rm_multiplemanageddisks:
     managed_disks:
       - "{{ shared_disks[0] }}"
-    managed_by_extended: 
+    managed_by_extended:
       - "{{ shared_virtual_machines[0] }}"
     state: absent
   register: detach_idempotency
@@ -217,7 +222,7 @@
 # Test Detach disks from all VMs
 - name: Detach disk 2 from all VMs
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[1] }}"
     managed_by_extended: []
     state: present
@@ -239,7 +244,7 @@
 
 - name: Detach disk 2 from all VMs once again (idempotency)
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[1] }}"
     managed_by_extended: []
     state: present
@@ -265,7 +270,7 @@
 
 - name: Delete managed disk attached to VM
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[0] }}"
     state: absent
   register: delete_attached_disk
@@ -284,7 +289,7 @@
 
 - name: Delete managed disk once again (idempotency)
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[0] }}"
     state: absent
   register: delete_attached_disk
@@ -297,7 +302,7 @@
 # Test managed disks deletion with managed_by_extended set to []
 - name: Trying to delete managed disks with managed_by_extended set to []
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[1] }}"
     managed_by_extended: []
     state: absent
@@ -311,7 +316,7 @@
 # Test managed disks deletion
 - name: Delete managed disks
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[1] }}"
     state: absent
   register: delete_disk
@@ -330,7 +335,7 @@
 
 - name: Delete managed disks once again (idempotency)
   azure.azcollection.azure_rm_multiplemanageddisks:
-    managed_disks: 
+    managed_disks:
       - "{{ shared_disks[1] }}"
     state: absent
   register: delete_idempotency

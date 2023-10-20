@@ -1,27 +1,28 @@
+---
 - name: Fix resource prefix
   set_fact:
-    name: "revault{{ resource_group | hash('md5') | truncate(22, True, '') }}"
-    location: "eastus"
+    name: revault{{ resource_group | hash('md5') | truncate(22, True, '') }}
+    location: eastus
 
 - name: Create Azure Recovery Service vault
   azure_rm_recoveryservicesvault:
     resource_group: "{{ resource_group }}"
     name: "{{ name }}"
     location: "{{ location }}"
-    state: "present"
+    state: present
   register: output
 
 - name: Assert that output has changed
   assert:
     that:
       - output.changed
-      
+
 - name: Create Azure Recovery Service vault (idempotent)
   azure_rm_recoveryservicesvault:
     resource_group: "{{ resource_group }}"
     name: "{{ name }}"
     location: "{{ location }}"
-    state: "present"
+    state: present
   register: output
 
 - name: Assert that output has no changed
@@ -46,7 +47,7 @@
     resource_group: "{{ resource_group }}"
     name: "{{ name }}"
     location: "{{ location }}"
-    state: "absent"
+    state: absent
   register: output
 
 - name: Assert that output has changed
